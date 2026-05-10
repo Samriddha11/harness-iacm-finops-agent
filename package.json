@@ -1,0 +1,62 @@
+{
+  "name": "harness-iacm-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Harness IaCM — manage Terraform/OpenTofu workspaces, runs, state, and variables through the Model Context Protocol.",
+  "type": "module",
+  "main": "build/index.js",
+  "bin": {
+    "harness-iacm-mcp": "build/index.js"
+  },
+  "files": [
+    "build/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "npm run build && concurrently \"npm:dev:watch\" \"npm:dev:serve\"",
+    "dev:watch": "tsc --watch",
+    "dev:serve": "nodemon --watch build --ext js --delay 1 --exec \"node --env-file=.env build/index.js http\"",
+    "start": "node build/index.js stdio",
+    "start:http": "node --env-file=.env build/index.js http",
+    "start:http:8080": "node --env-file=.env build/index.js http --port 8080",
+    "inspect": "npx @modelcontextprotocol/inspector node build/index.js stdio",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "docker:build": "docker build -t harness-iacm-mcp .",
+    "docker:run": "docker run --rm -p 3000:3000 --env-file .env harness-iacm-mcp",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "mcp",
+    "harness",
+    "harness-iacm",
+    "iacm",
+    "terraform",
+    "opentofu",
+    "infrastructure-as-code",
+    "model-context-protocol",
+    "ai-agent"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@types/marked": "^5.0.2",
+    "@types/pdfkit": "^0.17.6",
+    "express": "^5.2.1",
+    "marked": "^18.0.3",
+    "pdfkit": "^0.18.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.13.5",
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.9",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.6"
+  },
+  "packageManager": "pnpm@10.18.2",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
