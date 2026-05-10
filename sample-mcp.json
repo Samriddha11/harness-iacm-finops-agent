@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "harness-iacm": {
+      "command": "node",
+      "args": [
+        "/absolute/path/to/mcp-server-iacm/build/index.js",
+        "stdio"
+      ],
+      "env": {
+        "HARNESS_BEARER_TOKEN": "<YOUR_HARNESS_BEARER_TOKEN>",
+        "HARNESS_ACCOUNT_ID": "<YOUR_HARNESS_ACCOUNT_ID>",
+        "HARNESS_BASE_URL": "https://app.harness.io/gateway",
+        "HARNESS_DEFAULT_ORG_ID": "default",
+        "HARNESS_DEFAULT_PROJECT_ID": ""
+      }
+    }
+  }
+}
