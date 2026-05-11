@@ -703,21 +703,12 @@ body {
   letter-spacing: 0.005em;
 }
 
-/* ── Print: cover fills exactly one A4 page (no blank-page spillover) ── */
+/* ── Print: cover fills exactly one A4 page ──────────────────────────── */
 @media print {
   .cover {
-    /* Floor at content-area-minus-safety so the cover always fills a full
-       page, but cap at the actual printable area + clip overflow so we
-       never spill 1-2px onto a blank second page. */
-    min-height: calc(297mm - 30mm) !important;
-    max-height: calc(297mm - 24mm) !important;
-    height: auto !important;
-    overflow: hidden !important;
-    box-sizing: border-box;
+    min-height: calc(297mm - 28mm) !important; /* A4 height − @page margins */
+    height:     calc(297mm - 28mm);
     page-break-after: always;
-    break-after: page;
-    page-break-inside: avoid;
-    break-inside: avoid;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -1031,43 +1022,22 @@ td:first-child { font-weight: 500; color: var(--fg); }
 
 /* ── Print ────────────────────────────────────────────────────────────── */
 @media print {
-  @page { size: A4; margin: 12mm 12mm; }
-
-  /* Hide screen-only chrome */
+  @page { size: A4; margin: 14mm 12mm; }
   .report-nav { display: none !important; }
-
-  /* Body text: better line flow + smaller default size */
-  body {
-    font-size: 11.5px;
-    orphans: 3;       /* keep ≥3 lines together at top of next page    */
-    widows: 3;        /* keep ≥3 lines together at bottom of prev page */
-  }
-
-  /* Trim the trailing padding/margin that pushes past the last page
-     boundary and creates a final blank page. */
-  .report-body { padding-bottom: 0 !important; margin-bottom: 0 !important; }
-  .report-body > *:last-child { margin-bottom: 0 !important; }
-  hr:last-of-type { display: none; }
-
-  /* Page-break behaviour: keep block elements together so we don't
-     produce mid-card / mid-chart breaks that leave large white gaps. */
-  h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
-  .metric-card,
-  .callout,
-  .table-wrap,
-  figure { break-inside: avoid; page-break-inside: avoid; }
-  tr { break-inside: avoid; }
-
-  /* Force colours through */
-  .cover, .callout, .metric-card, .table-wrap, figure {
+  .cover {
+    page-break-after: always;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
-
-  /* Better grid fit on A4 */
+  .callout, .metric-card, .table-wrap, figure {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .metric-card { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  tr { break-inside: avoid; }
   .metrics-grid { grid-template-columns: repeat(3, 1fr); }
-
-  /* Slightly smaller headings for print density */
+  body { font-size: 11.5px; }
   h1 { font-size: 1.4rem; }
   h2 { font-size: 1.05rem; }
 }
