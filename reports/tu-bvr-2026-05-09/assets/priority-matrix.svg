@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="390" viewBox="0 0 640 390">
+  <rect width="640" height="390" fill="#ffffff" rx="10"/>
+  <text x="320" y="30" text-anchor="middle" font-size="15" font-weight="800" fill="#0d1f35" font-family="Inter,sans-serif">Priority Action Matrix</text>
+  <rect x="72" y="54" width="538" height="272" fill="#f8fafc" rx="4"/>
+  
+    <rect x="72" y="54" width="269" height="136" fill="#059669" opacity="0.04" rx="2"/>
+    <rect x="341" y="54" width="269" height="136" fill="#0278D5" opacity="0.03" rx="2"/>
+    <rect x="72" y="190" width="269" height="136" fill="#94a3b8" opacity="0.04" rx="2"/>
+    <rect x="341" y="190" width="269" height="136" fill="#94a3b8" opacity="0.02" rx="2"/>
+  <line x1="206.5" y1="54" x2="206.5" y2="326" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+            <line x1="72" y1="258" x2="610" y2="258" stroke="#e2e8f0" stroke-dasharray="4,4"/><line x1="341" y1="54" x2="341" y2="326" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+            <line x1="72" y1="190" x2="610" y2="190" stroke="#e2e8f0" stroke-dasharray="4,4"/><line x1="475.5" y1="54" x2="475.5" y2="326" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+            <line x1="72" y1="122" x2="610" y2="122" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+    <text x="206.5" y="68" text-anchor="middle" font-size="9" fill="#059669" font-family="Inter,sans-serif" font-weight="700">HIGH IMPACT · LOW EFFORT ★</text>
+    <text x="475.5" y="68" text-anchor="middle" font-size="9" fill="#0278D5" font-family="Inter,sans-serif">HIGH IMPACT · HIGH EFFORT</text>
+    <text x="206.5" y="342" text-anchor="middle" font-size="9" fill="#64748b" font-family="Inter,sans-serif">LOW IMPACT · LOW EFFORT</text>
+    <text x="475.5" y="342" text-anchor="middle" font-size="9" fill="#64748b" font-family="Inter,sans-serif">LOW IMPACT · HIGH EFFORT</text>
+  
+      <circle cx="136.56" cy="67.60000000000001" r="18" fill="#dc2626" opacity="0.15"/>
+      <circle cx="136.56" cy="67.60000000000001" r="7" fill="#dc2626" opacity="0.9"/>
+      <text y="87.60000000000001" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="136.56" dy="0">Enable</tspan><tspan x="136.56" dy="12">Finops Policy</tspan></text>
+    
+      <circle cx="120.42" cy="130.16000000000003" r="18" fill="#dc2626" opacity="0.15"/>
+      <circle cx="120.42" cy="130.16000000000003" r="7" fill="#dc2626" opacity="0.9"/>
+      <text y="150.16000000000003" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="120.42" dy="0">Enable API Token</tspan><tspan x="120.42" dy="12">Expiry</tspan></text>
+    
+      <circle cx="131.18" cy="149.2" r="18" fill="#dc2626" opacity="0.15"/>
+      <circle cx="131.18" cy="149.2" r="7" fill="#dc2626" opacity="0.9"/>
+      <text y="169.2" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="131.18" dy="0">Enable SBOM &</tspan><tspan x="131.18" dy="12">tf_plan</tspan></text>
+    
+      <circle cx="168.84" cy="211.76000000000002" r="18" fill="#d97706" opacity="0.15"/>
+      <circle cx="168.84" cy="211.76000000000002" r="7" fill="#d97706" opacity="0.9"/>
+      <text y="231.76000000000002" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="168.84" dy="0">Activate</tspan><tspan x="168.84" dy="12">Colombia/HK</tspan></text>
+    
+      <circle cx="351.76" cy="119.28" r="18" fill="#d97706" opacity="0.15"/>
+      <circle cx="351.76" cy="119.28" r="7" fill="#d97706" opacity="0.9"/>
+      <text y="139.28" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="351.76" dy="0">Workspace</tspan><tspan x="351.76" dy="12">OPA Policies</tspan></text>
+    
+      <circle cx="394.8" cy="102.96000000000001" r="18" fill="#d97706" opacity="0.15"/>
+      <circle cx="394.8" cy="102.96000000000001" r="7" fill="#d97706" opacity="0.9"/>
+      <text y="122.96000000000001" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="394.8" dy="0">Checkov</tspan><tspan x="394.8" dy="12">Audit</tspan></text>
+    
+      <circle cx="427.08000000000004" cy="162.8" r="18" fill="#0278D5" opacity="0.15"/>
+      <circle cx="427.08000000000004" cy="162.8" r="7" fill="#0278D5" opacity="0.9"/>
+      <text y="182.8" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="427.08000000000004" dy="0">IaCM</tspan><tspan x="427.08000000000004" dy="12">Templates</tspan></text>
+    
+      <circle cx="523.92" cy="222.64" r="18" fill="#0278D5" opacity="0.15"/>
+      <circle cx="523.92" cy="222.64" r="7" fill="#0278D5" opacity="0.9"/>
+      <text y="242.64" text-anchor="middle" font-size="10" font-weight="600" fill="#1e293b" font-family="Inter,sans-serif"><tspan x="523.92" dy="0">Private</tspan><tspan x="523.92" dy="12">Registry</tspan></text>
+    
+  <line x1="72" y1="326" x2="610" y2="326" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="72" y1="54" x2="72" y2="326" stroke="#64748b" stroke-width="1.5"/>
+  <text x="341" y="360" text-anchor="middle" font-size="11" fill="#64748b" font-family="Inter,sans-serif" font-weight="600">→  EFFORT  (Low to High)</text>
+  <text x="18" y="190" text-anchor="middle" font-size="11" fill="#64748b" font-family="Inter,sans-serif" font-weight="600" transform="rotate(-90 18 190)">↑  IMPACT</text>
+  <circle cx="78" cy="370" r="5" fill="#dc2626" opacity="0.9"/>
+     <text x="88" y="374" font-size="10" fill="#64748b" font-family="Inter,sans-serif">P1 — Enable now (config only)</text><circle cx="278" cy="370" r="5" fill="#d97706" opacity="0.9"/>
+     <text x="288" y="374" font-size="10" fill="#64748b" font-family="Inter,sans-serif">P2 — This quarter</text><circle cx="478" cy="370" r="5" fill="#0278D5" opacity="0.9"/>
+     <text x="488" y="374" font-size="10" fill="#64748b" font-family="Inter,sans-serif">P3 — Next quarter</text>
+</svg>

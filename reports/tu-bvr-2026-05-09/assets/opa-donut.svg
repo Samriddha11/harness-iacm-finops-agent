@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="310" viewBox="0 0 620 310">
+  <rect width="620" height="310" fill="#ffffff" rx="10"/>
+  <text x="310" y="28" text-anchor="middle" font-size="15" font-weight="800" fill="#0d1f35" font-family="Inter,sans-serif">OPA Governance — 20 Policy Sets</text>
+  <path d="M 165 52 A 108 108 0 1 1 131.62616460750564 262.7141037598766 L 145.22291236000333 220.86761704288983 A 64 64 0 1 0 165 96 Z" fill="#059669" opacity="0.88" stroke="#ffffff" stroke-width="3"/><path d="M 131.62616460750564 262.7141037598766 A 108 108 0 0 1 164.99999999999997 52 L 165 96 A 64 64 0 0 0 145.22291236000333 220.86761704288983 Z" fill="#d97706" opacity="0.88" stroke="#ffffff" stroke-width="3"/>
+  <text x="165" y="146" text-anchor="middle" font-size="32" font-weight="900" fill="#0d1f35" font-family="Inter,sans-serif">20</text>
+  <text x="165" y="168" text-anchor="middle" font-size="11" fill="#64748b" font-family="Inter,sans-serif">policy sets</text>
+  <text x="165" y="188" text-anchor="middle" font-size="12" font-weight="700" fill="#059669" font-family="Inter,sans-serif">100% pipeline</text>
+  <text x="165" y="204" text-anchor="middle" font-size="12" font-weight="700" fill="#059669" font-family="Inter,sans-serif">coverage</text>
+  
+    <text x="305" y="46" font-size="10" font-weight="800" letter-spacing="0.08em" fill="#059669" font-family="Inter,sans-serif">ACTIVE (11)</text>
+    <text x="315" y="62" font-size="10" fill="#1e293b" font-family="Inter,sans-serif">• IACM_Policies</text><text x="315" y="77" font-size="10" fill="#1e293b" font-family="Inter,sans-serif">• SDP_CD_Policies</text><text x="315" y="92" font-size="10" fill="#1e293b" font-family="Inter,sans-serif">• SDP_CI_Templates</text><text x="315" y="107" font-size="10" fill="#1e293b" font-family="Inter,sans-serif">• SonarQube Gate</text><text x="315" y="122" font-size="10" fill="#1e293b" font-family="Inter,sans-serif">• TU_OneDev Governance</text><text x="315" y="137" font-size="10" fill="#1e293b" font-family="Inter,sans-serif">• SEAL ARM ImageScan</text>
+    <text x="315" y="152" font-size="10" fill="#64748b" font-family="Inter,sans-serif">+ 5 more active sets</text>
+    <text x="305" y="177" font-size="10" font-weight="800" letter-spacing="0.08em" fill="#d97706" font-family="Inter,sans-serif">DISABLED (9)</text>
+    <text x="315" y="193" font-size="10" fill="#64748b" font-family="Inter,sans-serif">• Finops</text><text x="315" y="208" font-size="10" fill="#64748b" font-family="Inter,sans-serif">• API Token Expiry</text><text x="315" y="223" font-size="10" fill="#64748b" font-family="Inter,sans-serif">• SBOM_Policies</text><text x="315" y="238" font-size="10" fill="#64748b" font-family="Inter,sans-serif">• tf_plan_test</text><text x="315" y="253" font-size="10" fill="#64748b" font-family="Inter,sans-serif">• Java Version Check</text><text x="315" y="268" font-size="10" fill="#64748b" font-family="Inter,sans-serif">• + 4 more</text>
+  
+</svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="210" viewBox="0 0 680 210">
+  <rect width="680" height="210" class="svg-bg" fill="#ffffff" rx="10"/>
+  <text x="340" y="26" text-anchor="middle" font-size="12.6" font-weight="800" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Feature Adoption Scorecard</text>
+  
+      <circle cx="56.666666666666664" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+      <circle cx="56.666666666666664" cy="106" r="50" fill="none" stroke="#059669" stroke-width="10"
+        stroke-dasharray="314.1592653589793 0" stroke-linecap="round"
+        transform="rotate(-90 56.666666666666664 106)"/>
+      <text x="56.666666666666664" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">100%</text>
+      <text x="56.666666666666664" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Workspace</text><text x="56.666666666666664" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Adoption</text>
+    
+      <circle cx="170" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+      <circle cx="170" cy="106" r="50" fill="none" stroke="#059669" stroke-width="10"
+        stroke-dasharray="314.1592653589793 0" stroke-linecap="round"
+        transform="rotate(-90 170 106)"/>
+      <text x="170" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">100%</text>
+      <text x="170" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Pipeline</text><text x="170" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Adoption</text>
+    
+      <circle cx="283.3333333333333" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+      <circle cx="283.3333333333333" cy="106" r="50" fill="none" stroke="#059669" stroke-width="10"
+        stroke-dasharray="314.1592653589793 0" stroke-linecap="round"
+        transform="rotate(-90 283.3333333333333 106)"/>
+      <text x="283.3333333333333" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">100%</text>
+      <text x="283.3333333333333" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">OPA</text><text x="283.3333333333333" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Coverage</text>
+    
+      <circle cx="396.6666666666667" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+      <circle cx="396.6666666666667" cy="106" r="50" fill="none" stroke="#0278D5" stroke-width="10"
+        stroke-dasharray="166.50441064025904 147.6548547187203" stroke-linecap="round"
+        transform="rotate(-90 396.6666666666667 106)"/>
+      <text x="396.6666666666667" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">53%</text>
+      <text x="396.6666666666667" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Security</text><text x="396.6666666666667" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Scanning</text>
+    
+      <circle cx="510" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+      <circle cx="510" cy="106" r="50" fill="none" stroke="#dc2626" stroke-width="10"
+        stroke-dasharray="21.991148575128555 292.1681167838508" stroke-linecap="round"
+        transform="rotate(-90 510 106)"/>
+      <text x="510" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">7%</text>
+      <text x="510" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Cost</text><text x="510" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Estimation</text>
+    
+      <circle cx="623.3333333333333" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
+      <circle cx="623.3333333333333" cy="106" r="50" fill="none" stroke="#94a3b8" stroke-width="10"
+        stroke-dasharray="0 314.1592653589793" stroke-linecap="round"
+        transform="rotate(-90 623.3333333333333 106)"/>
+      <text x="623.3333333333333" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">0%</text>
+      <text x="623.3333333333333" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">IaCM</text><text x="623.3333333333333" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Templates</text>
+    
+</svg>

@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="652" viewBox="0 0 720 652">
+  <rect width="720" height="652" fill="#ffffff" rx="10"/>
+  <text x="360" y="32" text-anchor="middle" font-size="15" font-weight="800" fill="#0d1f35" font-family="Inter,sans-serif">Top 10 Organisations — IaCM Footprint</text>
+  
+      <text x="200" y="66" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">TruVision Risk Mgmt</text>
+      <rect x="210" y="52" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="52" width="153.80952380952382" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="369.80952380952385" y="66" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">425</text>
+      <rect x="210" y="72" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="72" width="155.98095238095237" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="371.9809523809524" y="86" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">431</text>
+    
+      <text x="200" y="122" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">OneDev</text>
+      <rect x="210" y="108" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="108" width="137.52380952380952" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="353.5238095238095" y="122" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">380</text>
+      <rect x="210" y="128" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="128" width="208.8190476190476" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="424.81904761904764" y="142" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">577</text>
+    
+      <text x="200" y="178" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">Information Security</text>
+      <rect x="210" y="164" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="164" width="108.20952380952382" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="324.20952380952383" y="178" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">299</text>
+      <rect x="210" y="184" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="184" width="144.76190476190476" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="360.76190476190476" y="198" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">400</text>
+    
+      <text x="200" y="234" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">OneTru</text>
+      <rect x="210" y="220" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="220" width="95.54285714285714" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="311.54285714285714" y="234" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">264</text>
+      <rect x="210" y="240" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="240" width="306.8952380952381" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="522.895238095238" y="254" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">848</text>
+    
+      <text x="200" y="290" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">Global Assoc. Tech.</text>
+      <rect x="210" y="276" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="276" width="62.60952380952381" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="278.6095238095238" y="290" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">173</text>
+      <rect x="210" y="296" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="296" width="356.1142857142857" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="572.1142857142856" y="310" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">984</text>
+    
+      <text x="200" y="346" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">TruAudiance & Mktg</text>
+      <rect x="210" y="332" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="332" width="48.4952380952381" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="264.4952380952381" y="346" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">134</text>
+      <rect x="210" y="352" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="352" width="39.44761904761905" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="255.44761904761904" y="366" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">109</text>
+    
+      <text x="200" y="402" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">TruValidate Fraud</text>
+      <rect x="210" y="388" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="388" width="45.96190476190476" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="261.96190476190475" y="402" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">127</text>
+      <rect x="210" y="408" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="408" width="172.9904761904762" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="388.9904761904762" y="422" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">478</text>
+    
+      <text x="200" y="458" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">TU CIBIL</text>
+      <rect x="210" y="444" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="444" width="42.70476190476191" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="258.7047619047619" y="458" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">118</text>
+      <rect x="210" y="464" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="464" width="29.314285714285713" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="245.31428571428572" y="478" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">81</text>
+    
+      <text x="200" y="514" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">TruContact Comms</text>
+      <rect x="210" y="500" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="500" width="38.72380952380952" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="254.7238095238095" y="514" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">107</text>
+      <rect x="210" y="520" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="520" width="27.142857142857142" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="243.14285714285714" y="534" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">75</text>
+    
+      <text x="200" y="570" text-anchor="end" font-size="12" fill="#1e293b" font-family="Inter,sans-serif" font-weight="500">TruIQ Analytics</text>
+      <rect x="210" y="556" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="556" width="36.91428571428571" height="16" rx="3" fill="#0278D5" opacity="0.9"/>
+      <text x="252.9142857142857" y="570" font-size="11" font-weight="700" fill="#0278D5" font-family="Inter,sans-serif">102</text>
+      <rect x="210" y="576" width="380" height="16" rx="3" fill="#e2e8f0"/>
+      <rect x="210" y="576" width="23.523809523809526" height="16" rx="3" fill="#0891b2" opacity="0.8"/>
+      <text x="239.52380952380952" y="590" font-size="11" font-weight="700" fill="#0891b2" font-family="Inter,sans-serif">65</text>
+    
+  <rect x="210" y="628" width="13" height="13" rx="2" fill="#0278D5" opacity="0.9"/>
+  <text x="229" y="638" font-size="11" fill="#64748b" font-family="Inter,sans-serif">Workspaces</text>
+  <rect x="330" y="628" width="13" height="13" rx="2" fill="#0891b2" opacity="0.8"/>
+  <text x="349" y="638" font-size="11" fill="#64748b" font-family="Inter,sans-serif">Pipelines</text>
+</svg>

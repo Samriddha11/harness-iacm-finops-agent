@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="320" viewBox="0 0 560 320">
+    <rect width="560" height="320" fill="#ffffff" rx="8"/>
+    <text x="280" y="26" text-anchor="middle" font-size="14" font-weight="700" fill="#0d1f35" font-family="Inter,sans-serif">OPA Policy Sets — 20 Total</text>
+    <path d="M 180 45 A 110 110 0 1 1 146.00813061875573 259.61621679246684 L 159.9138953656284 216.81867355918496 A 65 65 0 1 0 180 90 Z" fill="#059669" opacity="0.85"/>
+    <path d="M 146.00813061875573 259.61621679246684 A 110 110 0 0 1 180 45 L 180 90 A 65 65 0 0 0 159.9138953656284 216.81867355918496 Z" fill="#d97706" opacity="0.6"/>
+    <text x="180" y="147" text-anchor="middle" font-size="26" font-weight="800" fill="#0d1f35" font-family="Inter,sans-serif">20</text>
+    <text x="180" y="167" text-anchor="middle" font-size="11" fill="#64748b" font-family="Inter,sans-serif">Policy Sets</text>
+    <text x="180" y="183" text-anchor="middle" font-size="11" fill="#059669" font-weight="600" font-family="Inter,sans-serif">11 Active</text>
+    <text x="180" y="199" text-anchor="middle" font-size="11" fill="#d97706" font-weight="600" font-family="Inter,sans-serif">9 Disabled</text>
+    <rect x="330" y="40" width="10" height="10" rx="2" fill="#059669" opacity="0.85"/>
+     <text x="346" y="50" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">IACM_Policies</text>
+<rect x="330" y="62" width="10" height="10" rx="2" fill="#059669" opacity="0.85"/>
+     <text x="346" y="72" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">SDP_CD_Policies</text>
+<rect x="330" y="84" width="10" height="10" rx="2" fill="#059669" opacity="0.85"/>
+     <text x="346" y="94" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">SDP_CI_Policy_Templates</text>
+<rect x="330" y="106" width="10" height="10" rx="2" fill="#059669" opacity="0.85"/>
+     <text x="346" y="116" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">SonarQube_Quality_Gate</text>
+<rect x="330" y="128" width="10" height="10" rx="2" fill="#059669" opacity="0.85"/>
+     <text x="346" y="138" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">TU_OneDev_Governance</text>
+<rect x="330" y="150" width="10" height="10" rx="2" fill="#059669" opacity="0.85"/>
+     <text x="346" y="160" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">TU_Security_SEAL ×6</text>
+<rect x="330" y="172" width="10" height="10" rx="2" fill="#dc2626" opacity="0.85"/>
+     <text x="346" y="182" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">Finops (disabled)</text>
+<rect x="330" y="194" width="10" height="10" rx="2" fill="#d97706" opacity="0.85"/>
+     <text x="346" y="204" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">API Token Expiry</text>
+<rect x="330" y="216" width="10" height="10" rx="2" fill="#d97706" opacity="0.85"/>
+     <text x="346" y="226" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">Java Version Check</text>
+<rect x="330" y="238" width="10" height="10" rx="2" fill="#d97706" opacity="0.85"/>
+     <text x="346" y="248" font-size="10.5" fill="#1e293b" font-family="Inter,sans-serif">+ 6 more disabled</text>
+    <text x="330" y="302" font-size="10" fill="#64748b" font-family="Inter,sans-serif">Pipeline coverage: 100% (all 4,911 pipelines)</text>
+  </svg>

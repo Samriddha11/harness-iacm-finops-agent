@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="272" viewBox="0 0 700 272">
+  <rect width="700" height="272" class="svg-bg" fill="#ffffff" rx="10"/>
+  
+      <rect x="12" y="0" width="217" height="4" rx="2" fill="#dc2626"/>
+      <rect x="12" y="4" width="217" height="54" rx="0" fill="#fff5f5"/>
+      <rect x="12" y="52" width="217" height="6" rx="0" fill="#fff5f5"/>
+      <rect x="22" y="14" width="34" height="20" rx="5" fill="#dc2626"/>
+      <text x="39" y="28" text-anchor="middle" font-size="9.2" font-weight="900" fill="#ffffff" font-family="Plus Jakarta Sans,DM Sans,sans-serif">P1</text>
+      <text x="66" y="25" font-size="11.3" font-weight="800" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Do Now</text>
+      <text x="66" y="41" font-size="8.8" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Config only — no engineering</text>
+      
+        <rect x="12" y="66" width="217" height="52" rx="7" fill="#fff5f5"/>
+        <circle cx="29" cy="84" r="5" fill="#dc2626" opacity="0.85"/>
+        <text x="44" y="84" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Enable Finops policy set +</text><text x="44" y="99" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">cost estimation</text>
+        <rect x="44" y="107" width="40" height="13" rx="6" fill="#059669" opacity="0.13"/>
+        <text x="64" y="117" text-anchor="middle" font-size="8" font-weight="800" fill="#059669" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Low</text>
+      
+        <rect x="12" y="124" width="217" height="52" rx="7" fill="#fff5f5"/>
+        <circle cx="29" cy="142" r="5" fill="#dc2626" opacity="0.85"/>
+        <text x="44" y="142" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Enable API Token Expiry</text><text x="44" y="157" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">enforcement</text>
+        <rect x="44" y="165" width="40" height="13" rx="6" fill="#059669" opacity="0.13"/>
+        <text x="64" y="175" text-anchor="middle" font-size="8" font-weight="800" fill="#059669" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Low</text>
+      
+        <rect x="12" y="182" width="217" height="52" rx="7" fill="#fff5f5"/>
+        <circle cx="29" cy="200" r="5" fill="#dc2626" opacity="0.85"/>
+        <text x="44" y="200" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Enable SBOM_Policies +</text><text x="44" y="215" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">tf_plan_test</text>
+        <rect x="44" y="223" width="40" height="13" rx="6" fill="#059669" opacity="0.13"/>
+        <text x="64" y="233" text-anchor="middle" font-size="8" font-weight="800" fill="#059669" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Low</text>
+      
+    
+      <rect x="241" y="0" width="217" height="4" rx="2" fill="#d97706"/>
+      <rect x="241" y="4" width="217" height="54" rx="0" fill="#fffbf0"/>
+      <rect x="241" y="52" width="217" height="6" rx="0" fill="#fffbf0"/>
+      <rect x="251" y="14" width="34" height="20" rx="5" fill="#d97706"/>
+      <text x="268" y="28" text-anchor="middle" font-size="9.2" font-weight="900" fill="#ffffff" font-family="Plus Jakarta Sans,DM Sans,sans-serif">P2</text>
+      <text x="295" y="25" font-size="11.3" font-weight="800" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">This Quarter</text>
+      <text x="295" y="41" font-size="8.8" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Some engineering required</text>
+      
+        <rect x="241" y="66" width="217" height="52" rx="7" fill="#fffbf0"/>
+        <circle cx="258" cy="84" r="5" fill="#d97706" opacity="0.85"/>
+        <text x="273" y="84" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Audit Checkov across all 4,911</text><text x="273" y="99" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">pipelines</text>
+        <rect x="273" y="107" width="40" height="13" rx="6" fill="#d97706" opacity="0.13"/>
+        <text x="293" y="117" text-anchor="middle" font-size="8" font-weight="800" fill="#d97706" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Medium</text>
+      
+        <rect x="241" y="124" width="217" height="52" rx="7" fill="#fffbf0"/>
+        <circle cx="258" cy="142" r="5" fill="#d97706" opacity="0.85"/>
+        <text x="273" y="142" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Add workspace-scoped OPA</text><text x="273" y="157" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">policy sets</text>
+        <rect x="273" y="165" width="40" height="13" rx="6" fill="#d97706" opacity="0.13"/>
+        <text x="293" y="175" text-anchor="middle" font-size="8" font-weight="800" fill="#d97706" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Medium</text>
+      
+        <rect x="241" y="182" width="217" height="52" rx="7" fill="#fffbf0"/>
+        <circle cx="258" cy="200" r="5" fill="#d97706" opacity="0.85"/>
+        <text x="273" y="200" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Activate IaCM — Colombia &</text><text x="273" y="215" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Hong Kong</text>
+        <rect x="273" y="223" width="40" height="13" rx="6" fill="#059669" opacity="0.13"/>
+        <text x="293" y="233" text-anchor="middle" font-size="8" font-weight="800" fill="#059669" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Low</text>
+      
+    
+      <rect x="470" y="0" width="217" height="4" rx="2" fill="#0278D5"/>
+      <rect x="470" y="4" width="217" height="54" rx="0" fill="#eff6ff"/>
+      <rect x="470" y="52" width="217" height="6" rx="0" fill="#eff6ff"/>
+      <rect x="480" y="14" width="34" height="20" rx="5" fill="#0278D5"/>
+      <text x="497" y="28" text-anchor="middle" font-size="9.2" font-weight="900" fill="#ffffff" font-family="Plus Jakarta Sans,DM Sans,sans-serif">P3</text>
+      <text x="524" y="25" font-size="11.3" font-weight="800" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Next Quarter</text>
+      <text x="524" y="41" font-size="8.8" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Longer-term investments</text>
+      
+        <rect x="470" y="66" width="217" height="52" rx="7" fill="#eff6ff"/>
+        <circle cx="487" cy="84" r="5" fill="#0278D5" opacity="0.85"/>
+        <text x="502" y="84" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Create canonical IaCM pipeline</text><text x="502" y="99" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">templates</text>
+        <rect x="502" y="107" width="40" height="13" rx="6" fill="#d97706" opacity="0.13"/>
+        <text x="522" y="117" text-anchor="middle" font-size="8" font-weight="800" fill="#d97706" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Medium</text>
+      
+        <rect x="470" y="124" width="217" height="52" rx="7" fill="#eff6ff"/>
+        <circle cx="487" cy="142" r="5" fill="#0278D5" opacity="0.85"/>
+        <text x="502" y="142" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Evaluate private module</text><text x="502" y="157" font-size="9.2" font-weight="600" fill="#1e293b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">registry</text>
+        <rect x="502" y="165" width="40" height="13" rx="6" fill="#dc2626" opacity="0.13"/>
+        <text x="522" y="175" text-anchor="middle" font-size="8" font-weight="800" fill="#dc2626" font-family="Plus Jakarta Sans,DM Sans,sans-serif">High</text>
+      
+    
+  <text x="350" y="262" text-anchor="middle" font-size="8" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif" letter-spacing="0.07em">EFFORT LEVEL — LOW · MEDIUM · HIGH</text>
+</svg>
