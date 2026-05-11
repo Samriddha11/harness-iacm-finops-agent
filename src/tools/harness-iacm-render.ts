@@ -6,7 +6,10 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { startReportServer, registerReport, getReportUrl } from "../report-renderer/server.js";
 
-const THEMES = ["harness", "dark", "slate", "minimal", "midnight", "ocean", "executive", "forest", "harness-pro", "kinetic"] as const;
+const THEMES = [
+  "dark", "minimal", "ocean", "harness-pro", "kinetic", "black-lime",
+  "carbon", "bluestone",
+] as const;
 type ThemeId = typeof THEMES[number];
 
 const DEFAULT_PORT = 4321;
@@ -18,17 +21,30 @@ export function registerRenderTool(server: McpServer): void {
       description:
         "Render a Harness IaCM BVR or report markdown file as a live themed webpage. " +
         "Starts a local HTTP server and returns a URL to open in the browser. " +
-        "The page includes a theme switcher (Harness, Dark, Slate, Minimal) and a " +
-        "'Download PDF' button (uses browser print-to-PDF, no extra tools needed). " +
-        "input_path must be an absolute path to a .md file.",
+        "The page includes a theme switcher with 8 executive-grade themes " +
+        "(4 light, 4 dark) and a 'Download PDF' button (uses browser print-to-PDF, " +
+        "no extra tools needed). input_path must be an absolute path to a .md file.",
       inputSchema: z.object({
         input_path: z
           .string()
           .describe("Absolute path to the markdown report file (e.g. /Users/me/reports/bvr/iacm-bvr.md)"),
         theme: z
-          .enum(["harness", "dark", "slate", "minimal", "midnight", "ocean", "executive", "forest", "harness-pro", "kinetic"])
-          .describe("Initial theme: harness (Harness blue), dark (GitHub dark), slate (indigo), minimal (clean), midnight (purple/violet), ocean (cyan/teal), executive (warm gold), forest (emerald green)")
-          .default("harness")
+          .enum([
+            "dark", "minimal", "ocean", "harness-pro", "kinetic", "black-lime",
+            "carbon", "bluestone",
+          ])
+          .describe(
+            "Initial theme. " +
+            "Light: minimal (Slate — cool indigo, modern SaaS), " +
+            "harness-pro (Aurora — soft mint+teal), " +
+            "kinetic (Sandstone — warm cream+amber, executive), " +
+            "bluestone (Bluestone — formal navy+gray, very formal). " +
+            "Dark: dark (Midnight — deep navy+blue), " +
+            "ocean (Eclipse — charcoal+emerald), " +
+            "black-lime (Obsidian — zinc black+gold), " +
+            "carbon (Carbon — stone+crimson, premium luxury).",
+          )
+          .default("dark")
           .optional(),
         port: z
           .number()
@@ -46,7 +62,7 @@ export function registerRenderTool(server: McpServer): void {
     },
     async (args) => {
       const inputPath = resolve(args.input_path);
-      const theme = (args.theme ?? "harness") as ThemeId;
+      const theme = (args.theme ?? "dark") as ThemeId;
       const port = args.port ?? DEFAULT_PORT;
 
       if (!existsSync(inputPath)) {
@@ -73,14 +89,14 @@ export function registerRenderTool(server: McpServer): void {
         success: true,
         url,
         themeUrl: {
-          harness:   `${url}?theme=harness`,
-          dark:      `${url}?theme=dark`,
-          slate:     `${url}?theme=slate`,
-          minimal:   `${url}?theme=minimal`,
-          midnight:  `${url}?theme=midnight`,
-          ocean:     `${url}?theme=ocean`,
-          executive: `${url}?theme=executive`,
-          forest:    `${url}?theme=forest`,
+          slate:     `${url}?theme=minimal`,      // Slate     — light, indigo
+          aurora:    `${url}?theme=harness-pro`,  // Aurora    — light, mint+teal
+          sandstone: `${url}?theme=kinetic`,      // Sandstone — light, warm amber
+          bluestone: `${url}?theme=bluestone`,    // Bluestone — light, formal navy+gray
+          midnight:  `${url}?theme=dark`,         // Midnight  — dark, navy+blue
+          eclipse:   `${url}?theme=ocean`,        // Eclipse   — dark, charcoal+emerald
+          obsidian:  `${url}?theme=black-lime`,   // Obsidian  — dark, zinc+gold
+          carbon:    `${url}?theme=carbon`,       // Carbon    — dark, stone+crimson
         },
         port: actualPort,
         message: [

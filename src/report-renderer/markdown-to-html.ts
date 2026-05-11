@@ -8,6 +8,12 @@ export interface FrontMatter {
   date?: string;
   author?: string;
   classification?: string;
+  /**
+   * Hero stats for the cover page, semicolon-separated value|label pairs:
+   *   heroStats: "2,461|Workspaces; 4,911|Pipelines; 100%|OPA Governed; 74/100|Maturity"
+   * Up to 4 stats are rendered as bordered hero tiles on the cover.
+   */
+  heroStats?: string;
 }
 
 export function parseFrontMatter(content: string): { fm: FrontMatter; body: string } {
