@@ -14,6 +14,7 @@ import { registerMarkdownToPdfTool } from "./markdown-to-pdf.js";
 import { registerRenderTool } from "./harness-iacm-render.js";
 import { registerMaturityTool } from "./harness-iacm-maturity.js";
 import { registerGuideTool } from "./harness-iacm-guide.js";
+import { registerChartTool } from "./harness-iacm-chart.js";
 
 export function registerAllTools(
   server: McpServer,
@@ -29,6 +30,7 @@ export function registerAllTools(
   registerOpaScanTool(server, client);
   registerMarkdownToPdfTool(server);
   registerRenderTool(server);
+  registerChartTool(server);
   registerMaturityTool(server, client);
   registerDescribeTool(server, registry);
   registerGuideTool(server);
