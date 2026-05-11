@@ -473,19 +473,19 @@ html, body { height: 100%; overflow: hidden; }
 }
 
 /* ── Print overrides ─────────────────────────────────────────────────────── */
-/* Print: strip the screen layout (sidebar + viewport-locked scroll) so
-   the printed PDF flows naturally. All page-break / typography rules
-   live in themes.ts BASE_CSS for a single source of truth. */
 @media print {
-  html, body { height: auto !important; overflow: visible !important; }
-  .app-layout { display: block !important; height: auto !important; }
+  @page { size: A4; margin: 14mm 12mm; }
+  html, body { height: auto; overflow: visible; }
+  .app-layout { display: block; height: auto; }
   .sidebar { display: none !important; }
-  .main-content {
-    height: auto !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
+  .main-content { height: auto; overflow: visible; }
+  .cover { page-break-after: always; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .callout, .metric-card, .table-wrap { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .metric-card { break-inside: avoid; }
+  h1, h2, h3 { break-after: avoid; }
+  tr { break-inside: avoid; }
+  .metrics-grid { grid-template-columns: repeat(4, 1fr); }
+  body { font-size: 11.5px; }
 }
 
 /* ── Light-theme sidebar overrides ─────────────────────────────────────────
