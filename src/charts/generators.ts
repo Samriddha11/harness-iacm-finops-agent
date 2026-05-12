@@ -11,7 +11,7 @@
  * the curated TU BVR design language. To change the look of a chart,
  * change ONE generator below and every report instantly inherits it.
  */
-import { PALETTE as P, FONT_FAMILY as F, wrap, approxW, esc } from "./palette.js";
+import { PALETTE as P, FONT_FAMILY as F, FONT_NUMERIC as FN, wrap, approxW, esc } from "./palette.js";
 
 // ─────────────────────────────────────────────────────────────────────────
 // 1. SCORECARD — row of value tiles with coloured top accent
@@ -47,8 +47,8 @@ export function scorecard(d: ScorecardData): string {
       <rect x="${x}" y="${tY}" width="${tW}" height="${tH}" rx="10" fill="${P.card}" stroke="${P.grid}" stroke-width="1"/>
       <rect x="${x}" y="${tY}" width="${tW}" height="4" rx="2" fill="${col}"/>
       <text x="${x + tW / 2}" y="${tY + 60}" text-anchor="middle"
-        font-size="22" font-weight="800" fill="${P.textDeep}" letter-spacing="-0.025em"
-        font-family="${F}">${esc(t.value)}</text>
+        font-size="24" font-weight="700" fill="${P.textDeep}" letter-spacing="-0.02em"
+        font-family="${FN}">${esc(t.value)}</text>
       <text x="${x + tW / 2}" y="${tY + 86}" text-anchor="middle"
         font-size="11" font-weight="700" fill="${col}" letter-spacing="0.04em"
         font-family="${F}">${esc(t.label)}</text>
@@ -135,7 +135,7 @@ export function maturityRadar(d: MaturityRadarData): string {
     <polygon points="${dataPts}" fill="${P.primary}" fill-opacity="0.12" stroke="${P.primary}" stroke-width="2.5" stroke-linejoin="round"/>
     ${dots}${axisLabels}
     <circle cx="${cx}" cy="${cy}" r="52" fill="${P.textDeep}"/>
-    <text x="${cx}" y="${cy - 10}" text-anchor="middle" font-size="30" font-weight="900" fill="${P.white}" font-family="${F}">${esc(String(d.centerValue))}</text>
+    <text x="${cx}" y="${cy - 10}" text-anchor="middle" font-size="32" font-weight="700" fill="${P.white}" letter-spacing="-0.02em" font-family="${FN}">${esc(String(d.centerValue))}</text>
     ${d.centerSub ? `<text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="10" fill="rgba(255,255,255,0.55)" font-family="${F}">${esc(d.centerSub)}</text>` : ""}
     ${d.centerTier ? `<text x="${cx}" y="${cy + 27}" text-anchor="middle" font-size="12" font-weight="800" fill="${tierColor(d.centerTier)}" font-family="${F}">${esc(d.centerTier)}</text>` : ""}
   </svg>`;
@@ -176,7 +176,7 @@ export function featureGauges(d: FeatureGaugesData): string {
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="${strokeW}"
         stroke-dasharray="${dash} ${circ - dash}" stroke-linecap="round"
         transform="rotate(-90 ${cx} ${cy})" opacity="0.92"/>
-      <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="22" font-weight="900" fill="${P.textDeep}" font-family="${F}">${pct}%</text>
+      <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="24" font-weight="700" fill="${P.textDeep}" letter-spacing="-0.02em" font-family="${FN}">${pct}%</text>
       ${label.map((l, li) =>
         `<text x="${cx}" y="${cy + 14 + li * 14}" text-anchor="middle" font-size="11" font-weight="600" fill="${P.muted}" font-family="${F}">${esc(l)}</text>`,
       ).join("")}
@@ -246,9 +246,9 @@ export function opaDonut(d: OpaDonutData): string {
     <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
     ${d.title ? `<text x="${W / 2}" y="28" text-anchor="middle" font-size="15" font-weight="800" fill="${P.textDeep}" font-family="${F}">${esc(d.title)}</text>` : ""}
     ${paths}
-    <text x="${cx}" y="${cy - 14}" text-anchor="middle" font-size="32" font-weight="900" fill="${P.textDeep}" font-family="${F}">${esc(d.centerValue ?? String(d.total))}</text>
-    ${d.centerLabel ? `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-size="11" fill="${P.muted}" font-family="${F}">${esc(d.centerLabel)}</text>` : ""}
-    ${d.centerSub ? `<text x="${cx}" y="${cy + 30}" text-anchor="middle" font-size="12" font-weight="700" fill="${P.success}" font-family="${F}">${esc(d.centerSub)}</text>` : ""}
+    <text x="${cx}" y="${cy - 16}" text-anchor="middle" font-size="36" font-weight="700" fill="${P.textDeep}" letter-spacing="-0.02em" font-family="${FN}">${esc(d.centerValue ?? String(d.total))}</text>
+    ${d.centerLabel ? `<text x="${cx}" y="${cy + 6}" text-anchor="middle" font-size="11" fill="${P.muted}" font-family="${F}">${esc(d.centerLabel)}</text>` : ""}
+    ${d.centerSub ? `<text x="${cx}" y="${cy + 24}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${P.success}" font-family="${FN}">${esc(d.centerSub)}</text>` : ""}
     ${legend}
   </svg>`;
 }
@@ -545,12 +545,180 @@ export function bar(d: BarData): string {
       <text x="${16 + LABEL_W}" y="${yMid + 3.5}" text-anchor="end" font-size="11" font-weight="500" fill="${P.text}" font-family="${F}">${esc(it.label)}</text>
       <rect x="${x0}" y="${y + 7}" width="${chartW}" height="14" rx="3" fill="${P.grid}" opacity="0.6"/>
       <rect x="${x0}" y="${y + 7}" width="${w.toFixed(1)}" height="14" rx="3" fill="${col}" opacity="0.95"/>
-      <text x="${x0 + w + 6}" y="${yMid + 3.5}" font-size="11" font-weight="700" fill="${col}" font-family="${F}">${esc(fmt(it.value))}</text>
+      <text x="${x0 + w + 6}" y="${yMid + 3.5}" font-size="11.5" font-weight="700" fill="${col}" font-family="${FN}">${esc(fmt(it.value))}</text>
     `;
   }).join("");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
     <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
     ${titleEl}${rows}
+  </svg>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// 8. MONTHLY GROWTH — dual-line cumulative chart over N months
+// ─────────────────────────────────────────────────────────────────────────
+export interface GrowthPoint {
+  label: string;          // e.g. "Jun '25"
+  workspaces: number;     // cumulative count at month end
+  pipelines:  number;     // cumulative count at month end
+}
+export interface MonthlyGrowthData {
+  points: GrowthPoint[];        // time-ordered, oldest first
+  title?: string;
+  subtitle?: string;
+  /** Optional summary chips (e.g. "+40% / 12 mo") shown top-right per series. */
+  growth?: { workspaces?: string; pipelines?: string };
+}
+
+export function monthlyGrowth(d: MonthlyGrowthData): string {
+  const points = d.points;
+  const W = 760, H = 380;
+  // PAD_R is generous so end-of-line value annotations have room and never clip.
+  const PAD_L = 60, PAD_R = 80, PAD_T = d.title ? 70 : 36, PAD_B = 56;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
+
+  const wsCol = P.primary;
+  const plCol = P.tertiary;
+
+  // Y axis — shared, scaled to the larger of the two series
+  const maxRaw = Math.max(1, ...points.flatMap((p) => [p.workspaces, p.pipelines]));
+  function niceCeil(n: number): number {
+    const pow = Math.pow(10, Math.floor(Math.log10(n)));
+    const norm = n / pow;
+    if (norm <= 1) return 1 * pow;
+    if (norm <= 2) return 2 * pow;
+    if (norm <= 5) return 5 * pow;
+    return 10 * pow;
+  }
+  const yMax = niceCeil(maxRaw * 1.05);
+  const ticks = 5;
+
+  const xAt = (i: number) => PAD_L + (points.length === 1 ? plotW / 2 : (i / (points.length - 1)) * plotW);
+  const yAt = (v: number) => PAD_T + plotH - (v / yMax) * plotH;
+
+  let grid = "";
+  for (let i = 0; i <= ticks; i++) {
+    const v = (yMax * i) / ticks;
+    const y = yAt(v);
+    grid += `
+      <line x1="${PAD_L}" y1="${y}" x2="${W - PAD_R}" y2="${y}" stroke="${P.grid}" stroke-width="1" ${i === 0 ? "" : `stroke-dasharray="3 4" opacity="0.55"`}/>
+      <text x="${PAD_L - 10}" y="${y + 3.5}" text-anchor="end" font-size="10" font-weight="500" fill="${P.muted}" font-family="${FN}">${Math.round(v).toLocaleString("en-US")}</text>
+    `;
+  }
+
+  const xLabelStep = points.length > 18 ? 3 : points.length > 12 ? 2 : 1;
+  const xLabels = points.map((p, i) => {
+    if (i % xLabelStep !== 0 && i !== points.length - 1) return "";
+    return `<text x="${xAt(i)}" y="${PAD_T + plotH + 16}" text-anchor="middle" font-size="9.5" font-weight="600" fill="${P.muted}" font-family="${FN}">${esc(p.label)}</text>`;
+  }).join("");
+
+  function buildSeries(values: number[], color: string, areaOpacity: number) {
+    if (values.length === 0) return { line: "", area: "", dots: "" };
+    const linePts = values.map((v, i) => `${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`).join(" ");
+    const areaPts = `${xAt(0).toFixed(1)},${yAt(0).toFixed(1)} ${linePts} ${xAt(values.length - 1).toFixed(1)},${yAt(0).toFixed(1)}`;
+    const dots = values.map((v, i) =>
+      `<circle cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="3.2" fill="${color}" stroke="${P.surface}" stroke-width="1.5"/>`,
+    ).join("");
+    return {
+      line: `<polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>`,
+      area: `<polygon points="${areaPts}" fill="${color}" opacity="${areaOpacity}"/>`,
+      dots,
+    };
+  }
+
+  const wsSeries = buildSeries(points.map((p) => p.workspaces), wsCol, 0.10);
+  const plSeries = buildSeries(points.map((p) => p.pipelines), plCol, 0.10);
+
+  // End-of-line value pills.
+  // Anchor inside the right padding so they NEVER clip.
+  // Use a soft pill background tinted with the series color for legibility.
+  const last = points[points.length - 1];
+  let annot = "";
+  if (last) {
+    const lastX = xAt(points.length - 1);
+    function pill(value: string, y: number, color: string) {
+      const padX = 8, padY = 4, fs = 11;
+      const tw = approxW(value, fs, 0);
+      const w = tw + padX * 2;
+      const h = fs + padY * 2;
+      const x = Math.min(lastX + 10, W - PAD_R + 8);
+      // Vertical centring around the line endpoint
+      const ry = y - h / 2;
+      return `
+        <rect x="${x.toFixed(1)}" y="${ry.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${(h / 2).toFixed(1)}" fill="${color}" opacity="0.16"/>
+        <rect x="${x.toFixed(1)}" y="${ry.toFixed(1)}" width="${w.toFixed(1)}" height="${h}" rx="${(h / 2).toFixed(1)}" fill="none" stroke="${color}" stroke-width="1" opacity="0.55"/>
+        <text x="${(x + w / 2).toFixed(1)}" y="${(ry + h / 2 + 3.6).toFixed(1)}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="${color}" font-family="${FN}">${esc(value)}</text>
+      `;
+    }
+    // If the two endpoints are too close vertically, nudge the lower one down.
+    const wsY = yAt(last.workspaces);
+    const plY = yAt(last.pipelines);
+    let wsYAdj = wsY, plYAdj = plY;
+    const minGap = 22;
+    if (Math.abs(wsY - plY) < minGap) {
+      if (wsY > plY) { wsYAdj = wsY + (minGap - (wsY - plY)) / 2; plYAdj = plY - (minGap - (wsY - plY)) / 2; }
+      else           { plYAdj = plY + (minGap - (plY - wsY)) / 2; wsYAdj = wsY - (minGap - (plY - wsY)) / 2; }
+    }
+    annot = pill(last.workspaces.toLocaleString("en-US"), wsYAdj, wsCol)
+          + pill(last.pipelines.toLocaleString("en-US"),  plYAdj, plCol);
+  }
+
+  const titleEl = d.title
+    ? `<text x="${PAD_L}" y="28" font-size="13.5" font-weight="800" fill="${P.textDeep}" letter-spacing="-0.015em" font-family="${F}">${esc(d.title)}</text>`
+    : "";
+  const subtitleEl = d.subtitle
+    ? `<text x="${PAD_L}" y="46" font-size="10" font-weight="500" fill="${P.muted}" font-family="${F}">${esc(d.subtitle)}</text>`
+    : "";
+
+  function chipRow() {
+    const chips: { text: string; col: string }[] = [];
+    if (d.growth?.workspaces) chips.push({ text: `Workspaces ${d.growth.workspaces}`, col: wsCol });
+    if (d.growth?.pipelines)  chips.push({ text: `Pipelines ${d.growth.pipelines}`,   col: plCol });
+    if (chips.length === 0) return "";
+    let cursor = W - PAD_R + 12;
+    const els: string[] = [];
+    for (const c of chips.reverse()) {
+      const w = approxW(c.text, 10, 0) + 22;
+      cursor -= w;
+      els.push(`
+        <rect x="${cursor.toFixed(1)}" y="14" width="${w.toFixed(1)}" height="22" rx="6" fill="${c.col}" opacity="0.14"/>
+        <rect x="${cursor.toFixed(1)}" y="14" width="${w.toFixed(1)}" height="22" rx="6" fill="none" stroke="${c.col}" stroke-width="1" opacity="0.55"/>
+        <text x="${(cursor + w / 2).toFixed(1)}" y="29" text-anchor="middle" font-size="10" font-weight="700" fill="${c.col}" font-family="${FN}">${esc(c.text)}</text>
+      `);
+      cursor -= 8;
+    }
+    return els.join("");
+  }
+
+  const legendY = H - 18;
+  const legendItems = [
+    { text: "Workspaces (cumulative)", col: wsCol },
+    { text: "Pipelines (cumulative)",  col: plCol },
+  ];
+  let legCursor = PAD_L;
+  const legendEls = legendItems.map((it) => {
+    const lineX = legCursor;
+    const labelX = legCursor + 22;
+    const w = approxW(it.text, 9.5, 0);
+    legCursor = labelX + w + 22;
+    return `
+      <line x1="${lineX}" y1="${legendY - 3}" x2="${lineX + 16}" y2="${legendY - 3}" stroke="${it.col}" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="${lineX + 8}" cy="${legendY - 3}" r="3" fill="${it.col}" stroke="${P.surface}" stroke-width="1.4"/>
+      <text x="${labelX}" y="${legendY}" font-size="9.5" font-weight="600" fill="${P.muted}" font-family="${F}">${esc(it.text)}</text>
+    `;
+  }).join("");
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
+    ${titleEl}${subtitleEl}${chipRow()}
+    ${grid}
+    ${wsSeries.area}${plSeries.area}
+    ${wsSeries.line}${plSeries.line}
+    ${wsSeries.dots}${plSeries.dots}
+    ${annot}
+    ${xLabels}
+    ${legendEls}
   </svg>`;
 }

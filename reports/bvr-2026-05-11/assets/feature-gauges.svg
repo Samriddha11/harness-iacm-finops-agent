@@ -1,47 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="680" height="210" viewBox="0 0 680 210">
-  <rect width="680" height="210" class="svg-bg" fill="#ffffff" rx="10"/>
-  <text x="340" y="26" text-anchor="middle" font-size="12.6" font-weight="800" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Feature Adoption Scorecard</text>
-  
-      <circle cx="56.666666666666664" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-      <circle cx="56.666666666666664" cy="106" r="50" fill="none" stroke="#059669" stroke-width="10"
-        stroke-dasharray="314.1592653589793 0" stroke-linecap="round"
-        transform="rotate(-90 56.666666666666664 106)"/>
-      <text x="56.666666666666664" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">100%</text>
-      <text x="56.666666666666664" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Workspace</text><text x="56.666666666666664" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Adoption</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="230" viewBox="0 0 780 230">
+    <rect width="780" height="230" class="svg-bg" fill="#ffffff" rx="10"/>
+    <text x="390" y="26" text-anchor="middle" font-size="15" font-weight="800" fill="#0d1f35" font-family="Plus Jakarta Sans,Inter,sans-serif">Feature Adoption Scorecard</text>
     
-      <circle cx="170" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-      <circle cx="170" cy="106" r="50" fill="none" stroke="#059669" stroke-width="10"
-        stroke-dasharray="314.1592653589793 0" stroke-linecap="round"
-        transform="rotate(-90 170 106)"/>
-      <text x="170" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">100%</text>
-      <text x="170" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Pipeline</text><text x="170" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Adoption</text>
+      <circle cx="65" cy="118" r="56" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+      <circle cx="65" cy="118" r="56" fill="none" stroke="#059669" stroke-width="11"
+        stroke-dasharray="351.85837720205683 0" stroke-linecap="round"
+        transform="rotate(-90 65 118)" opacity="0.92"/>
+      <text x="65" y="112" text-anchor="middle" font-size="24" font-weight="700" fill="#0d1f35" letter-spacing="-0.02em" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">100%</text>
+      <text x="65" y="132" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Workspace</text><text x="65" y="146" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Adoption</text>
     
-      <circle cx="283.3333333333333" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-      <circle cx="283.3333333333333" cy="106" r="50" fill="none" stroke="#059669" stroke-width="10"
-        stroke-dasharray="314.1592653589793 0" stroke-linecap="round"
-        transform="rotate(-90 283.3333333333333 106)"/>
-      <text x="283.3333333333333" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">100%</text>
-      <text x="283.3333333333333" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">OPA</text><text x="283.3333333333333" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Coverage</text>
+      <circle cx="195" cy="118" r="56" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+      <circle cx="195" cy="118" r="56" fill="none" stroke="#059669" stroke-width="11"
+        stroke-dasharray="351.85837720205683 0" stroke-linecap="round"
+        transform="rotate(-90 195 118)" opacity="0.92"/>
+      <text x="195" y="112" text-anchor="middle" font-size="24" font-weight="700" fill="#0d1f35" letter-spacing="-0.02em" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">100%</text>
+      <text x="195" y="132" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Pipeline</text><text x="195" y="146" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Adoption</text>
     
-      <circle cx="396.6666666666667" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-      <circle cx="396.6666666666667" cy="106" r="50" fill="none" stroke="#0278D5" stroke-width="10"
-        stroke-dasharray="166.50441064025904 147.6548547187203" stroke-linecap="round"
-        transform="rotate(-90 396.6666666666667 106)"/>
-      <text x="396.6666666666667" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">53%</text>
-      <text x="396.6666666666667" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Security</text><text x="396.6666666666667" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Scanning</text>
+      <circle cx="325" cy="118" r="56" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+      <circle cx="325" cy="118" r="56" fill="none" stroke="#059669" stroke-width="11"
+        stroke-dasharray="351.85837720205683 0" stroke-linecap="round"
+        transform="rotate(-90 325 118)" opacity="0.92"/>
+      <text x="325" y="112" text-anchor="middle" font-size="24" font-weight="700" fill="#0d1f35" letter-spacing="-0.02em" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">100%</text>
+      <text x="325" y="132" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">OPA</text><text x="325" y="146" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Coverage</text>
     
-      <circle cx="510" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-      <circle cx="510" cy="106" r="50" fill="none" stroke="#dc2626" stroke-width="10"
-        stroke-dasharray="21.991148575128555 292.1681167838508" stroke-linecap="round"
-        transform="rotate(-90 510 106)"/>
-      <text x="510" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">7%</text>
-      <text x="510" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Cost</text><text x="510" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Estimation</text>
+      <circle cx="455" cy="118" r="56" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+      <circle cx="455" cy="118" r="56" fill="none" stroke="#0278D5" stroke-width="11"
+        stroke-dasharray="186.48493991709012 165.3734372849667" stroke-linecap="round"
+        transform="rotate(-90 455 118)" opacity="0.92"/>
+      <text x="455" y="112" text-anchor="middle" font-size="24" font-weight="700" fill="#0d1f35" letter-spacing="-0.02em" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">53%</text>
+      <text x="455" y="132" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Security</text><text x="455" y="146" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Scanning</text>
     
-      <circle cx="623.3333333333333" cy="106" r="50" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-      <circle cx="623.3333333333333" cy="106" r="50" fill="none" stroke="#94a3b8" stroke-width="10"
-        stroke-dasharray="0 314.1592653589793" stroke-linecap="round"
-        transform="rotate(-90 623.3333333333333 106)"/>
-      <text x="623.3333333333333" y="100" text-anchor="middle" font-size="20.2" font-weight="900" fill="#0d1f35" font-family="Plus Jakarta Sans,DM Sans,sans-serif">0%</text>
-      <text x="623.3333333333333" y="122" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">IaCM</text><text x="623.3333333333333" y="137" text-anchor="middle" font-size="9.7" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,DM Sans,sans-serif">Templates</text>
+      <circle cx="585" cy="118" r="56" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+      <circle cx="585" cy="118" r="56" fill="none" stroke="#dc2626" stroke-width="11"
+        stroke-dasharray="24.63008640414398 327.22829079791285" stroke-linecap="round"
+        transform="rotate(-90 585 118)" opacity="0.92"/>
+      <text x="585" y="112" text-anchor="middle" font-size="24" font-weight="700" fill="#0d1f35" letter-spacing="-0.02em" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">7%</text>
+      <text x="585" y="132" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Cost</text><text x="585" y="146" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Estimation</text>
     
-</svg>
+      <circle cx="715" cy="118" r="56" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+      <circle cx="715" cy="118" r="56" fill="none" stroke="#94a3b8" stroke-width="11"
+        stroke-dasharray="0 351.85837720205683" stroke-linecap="round"
+        transform="rotate(-90 715 118)" opacity="0.92"/>
+      <text x="715" y="112" text-anchor="middle" font-size="24" font-weight="700" fill="#0d1f35" letter-spacing="-0.02em" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">0%</text>
+      <text x="715" y="132" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">IaCM</text><text x="715" y="146" text-anchor="middle" font-size="11" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Templates</text>
+    
+  </svg>

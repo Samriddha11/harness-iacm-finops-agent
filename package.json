@@ -14,7 +14,7 @@
     "build": "tsc",
     "dev": "npm run build && concurrently \"npm:dev:watch\" \"npm:dev:serve\"",
     "dev:watch": "tsc --watch",
-    "dev:serve": "nodemon --watch build --ext js --delay 1 --exec \"node --env-file=.env build/index.js http\"",
+    "dev:serve": "nodemon --watch build --ext js --delay 1 --exec \"node --env-file-if-exists=.env build/index.js http\"",
     "start": "node build/index.js stdio",
     "start:http": "node --env-file=.env build/index.js http",
     "start:http:8080": "node --env-file=.env build/index.js http --port 8080",

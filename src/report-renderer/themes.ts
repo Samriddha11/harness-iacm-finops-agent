@@ -345,7 +345,15 @@ export const THEMES: Record<ThemeId, { label: string; vars: string }> = {
 };
 
 export const BASE_CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* Tabular numerals + crisp tech rendering for chart numerics. Charts opt
+   in by setting font-family to the FONT_NUMERIC stack from palette.ts. */
+figure svg text {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "ss01" 1, "cv01" 1;
+  font-optical-sizing: auto;
+}
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -355,8 +363,8 @@ body {
   font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg);
   color: var(--fg);
-  font-size: 14px;
-  line-height: 1.68;
+  font-size: 15px;
+  line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   letter-spacing: -0.003em;
 }
@@ -467,10 +475,12 @@ body {
 
 /* ── Cover (hero first page) ─────────────────────────────────────────────
    Designed to fill exactly one A4 page in print, render as a strong hero
-   on screen, and capture cleanly as a static image for PPT export. */
+   on screen, and capture cleanly as a static image for PPT export. The
+   horizontal padding scales with viewport (clamp) so the cover content
+   uses ~92% of available width on every screen size. */
 .cover {
   background: var(--cover-bg);
-  padding: 56px 64px 44px;
+  padding: clamp(48px, 5vw, 88px) clamp(40px, 6vw, 120px) clamp(40px, 4vw, 72px);
   position: relative;
   overflow: hidden;
   min-height: 90vh;
@@ -573,82 +583,87 @@ body {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 
-/* ── Hero block: eyebrow + title + subtitle + customer name ──────────── */
+/* ── Hero block: eyebrow + title + subtitle + customer name ────────────
+   Spans the full cover width on any screen. Title + customer name use
+   clamp() with generous upper bounds so they scale up on wide displays
+   (rather than capping at a fixed size and leaving the right half empty). */
 .cover-hero {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 720px;
+  max-width: 100%;
 }
 .cover-eyebrow {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.34em;
   color: var(--cover-line);
   text-transform: uppercase;
-  margin-bottom: 22px;
+  margin-bottom: 26px;
 }
 .cover h1, .cover-title {
   font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(2.2rem, 4.4vw, 3.2rem);
+  font-size: clamp(2.4rem, 5.4vw, 5rem);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1.04;
   letter-spacing: -0.035em;
   color: #ffffff;
-  margin-bottom: 14px;
-  max-width: 720px;
+  margin-bottom: 18px;
+  max-width: 100%;
 }
 .cover-subtitle {
-  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  font-size: clamp(1rem, 1.7vw, 1.5rem);
   font-weight: 400;
   color: rgba(255,255,255,0.68);
   letter-spacing: 0.005em;
-  line-height: 1.5;
-  max-width: 580px;
-  margin-bottom: 36px;
+  line-height: 1.45;
+  max-width: 920px;
+  margin-bottom: 44px;
 }
 .cover-accent-rule {
-  width: 44px;
+  width: 56px;
   height: 3px;
   background: var(--cover-line);
   border-radius: 2px;
-  margin-bottom: 26px;
+  margin-bottom: 30px;
 }
 .cover-customer-block {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 .cover-prepared-label {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.36em;
   color: rgba(255,255,255,0.42);
   text-transform: uppercase;
 }
 .cover-customer-name {
   font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(2.6rem, 6.5vw, 4.6rem);
+  font-size: clamp(3rem, 12vw, 12rem);
   font-weight: 800;
   letter-spacing: -0.04em;
   color: #ffffff;
-  line-height: 0.96;
+  line-height: 0.94;
   text-transform: uppercase;
+  max-width: 100%;
+  word-break: break-word;
 }
 
-/* ── Hero stats grid ─────────────────────────────────────────────────── */
+/* ── Hero stats grid — scales with viewport ──────────────────────────── */
 .cover-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin: 56px 0 36px;
+  gap: clamp(20px, 2.4vw, 44px);
+  margin: clamp(48px, 6vw, 96px) 0 clamp(36px, 4vw, 60px);
 }
 .cover-stat-tile {
   border-top: 2px solid;
-  padding: 16px 4px 0;
+  padding: clamp(16px, 1.8vw, 28px) 4px 0;
   position: relative;
 }
 .cover-stat-tile[data-tile="1"] { border-top-color: var(--cover-line); }
@@ -657,20 +672,20 @@ body {
 .cover-stat-tile[data-tile="4"] { border-top-color: rgba(255,255,255,0.55); }
 .cover-stat-value {
   font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(2.1rem, 4.6vw, 4.4rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: #ffffff;
   line-height: 1;
-  margin-bottom: 10px;
+  margin-bottom: clamp(10px, 1vw, 18px);
   font-feature-settings: 'tnum' 1;
   font-variant-numeric: tabular-nums;
 }
 .cover-stat-label {
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  font-size: 9.5px;
+  font-size: clamp(10px, 0.8vw, 13px);
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   color: rgba(255,255,255,0.62);
   text-transform: uppercase;
 }
@@ -703,12 +718,27 @@ body {
   letter-spacing: 0.005em;
 }
 
-/* ── Print: cover fills exactly one A4 page ──────────────────────────── */
+/* ── Print: cover fills exactly one A4 page (no blank-page spillover) ──
+   The classic "blank second page after the cover" bug is caused by the
+   cover ending up 1-2px taller than the printable area due to browser
+   sub-pixel rounding. We:
+     • floor the cover height at content-area-minus-safety, so it always
+       fills a full page;
+     • cap with max-height at the actual printable area;
+     • clip with overflow:hidden so any sub-pixel overflow is absorbed;
+     • set both legacy (page-break-after) and modern (break-after)
+       properties for cross-browser reliability. */
 @media print {
   .cover {
-    min-height: calc(297mm - 28mm) !important; /* A4 height − @page margins */
-    height:     calc(297mm - 28mm);
+    min-height: calc(297mm - 30mm) !important;
+    max-height: calc(297mm - 24mm) !important;
+    height: auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box;
     page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
@@ -721,9 +751,15 @@ body {
   .cover { animation: none !important; }
 }
 
-/* ── Page layout ──────────────────────────────────────────────────────── */
+/* ── Page layout ──────────────────────────────────────────────────────────
+   Body fills the full available content area (viewport minus sidebar) up
+   to a generous cap. Padding scales with viewport so charts and tables
+   have proper room to breathe on wide displays without the document
+   becoming a narrow stripe in the middle of the screen. */
 .report-body {
-  max-width: 860px; margin: 0 auto; padding: 36px 40px 60px;
+  max-width: min(96vw, 2200px);
+  margin: 0 auto;
+  padding: 48px clamp(32px, 3.6vw, 72px) 72px;
 }
 
 /* ── Typography ───────────────────────────────────────────────────────── */
@@ -731,31 +767,31 @@ h1, h2, h3, h4 {
   font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
 }
 h1 {
-  font-size: 1.5rem; font-weight: 800; color: var(--heading);
-  margin: 2rem 0 0.55rem; letter-spacing: -0.03em;
+  font-size: 1.6rem; font-weight: 800; color: var(--heading);
+  margin: 2rem 0 0.6rem; letter-spacing: -0.03em;
   padding-bottom: 10px; border-bottom: 2px solid var(--accent);
   line-height: 1.18;
 }
 h1:first-child { margin-top: 0; }
 h2 {
-  font-size: 1rem; font-weight: 700; color: var(--accent);
-  margin: 1.7rem 0 0.4rem;
-  padding-bottom: 5px;
+  font-size: 1.08rem; font-weight: 700; color: var(--accent);
+  margin: 1.7rem 0 0.45rem;
+  padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
   letter-spacing: -0.02em;
 }
 h3 {
-  font-size: 0.9rem; font-weight: 700; color: var(--heading);
+  font-size: 0.96rem; font-weight: 700; color: var(--heading);
   margin: 1.3rem 0 0.3rem; letter-spacing: -0.015em;
 }
-h4 { font-size: 0.84rem; font-weight: 600; color: var(--fg2); margin: 1rem 0 0.25rem; }
+h4 { font-size: 0.88rem; font-weight: 600; color: var(--fg2); margin: 1rem 0 0.25rem; }
 
-p  { margin-bottom: 0.75rem; color: var(--fg2); font-size: 13.5px; line-height: 1.65; }
+p  { margin-bottom: 0.8rem; color: var(--fg2); font-size: 14.5px; line-height: 1.65; }
 strong { color: var(--fg); font-weight: 700; }
 em { font-style: italic; }
 
 ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
-li { margin-bottom: 0.35rem; color: var(--fg2); }
+li { margin-bottom: 0.4rem; color: var(--fg2); font-size: 14.5px; line-height: 1.6; }
 li > strong { color: var(--fg); }
 
 hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
@@ -874,7 +910,7 @@ pre code { background: none; border: none; padding: 0; font-size: 0.875rem; }
 .callout.info .callout-badge      { color: var(--info); }
 .callout.action .callout-badge    { color: var(--action); }
 
-.callout-body p { margin-bottom: 0; font-size: 14px; }
+.callout-body p { margin-bottom: 0; font-size: 14.5px; }
 .callout-body p + p { margin-top: 0.5rem; }
 
 /* ── Inline SVG charts ────────────────────────────────────────────────── */
@@ -892,7 +928,7 @@ figure svg {
   display: block;
   width: 100%;
   height: auto;
-  max-width: 720px;
+  max-width: 1500px;
   margin: 0 auto;
   border-radius: 8px;
 }
@@ -986,7 +1022,7 @@ figure svg [fill="rgba(255,255,255,0.55)"] { fill: var(--svg-surface); fill-opac
   border: 1px solid var(--border); border-radius: 10px;
   box-shadow: var(--shadow);
 }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
 thead { background: var(--accent); }
 thead th {
   padding: 11px 14px; text-align: left;
@@ -1020,24 +1056,51 @@ td:first-child { font-weight: 500; color: var(--fg); }
   font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
 }
 
-/* ── Print ────────────────────────────────────────────────────────────── */
+/* ── Print ──────────────────────────────────────────────────────────────
+   Single source of truth for all print/PDF rules. server.ts only handles
+   stripping the screen layout (sidebar, viewport-locked scroll). All
+   page-break behaviour, typography, and colour-fidelity lives here. */
 @media print {
-  @page { size: A4; margin: 14mm 12mm; }
+  @page { size: A4; margin: 12mm 12mm; }
+
+  /* Hide screen-only chrome */
   .report-nav { display: none !important; }
-  .cover {
-    page-break-after: always;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+
+  /* Body text: better line flow + smaller default size for print density */
+  body {
+    font-size: 11.5px;
+    orphans: 3;       /* keep ≥3 lines together at top of next page    */
+    widows: 3;        /* keep ≥3 lines together at bottom of prev page */
   }
-  .callout, .metric-card, .table-wrap, figure {
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+
+  /* Trim the trailing padding/margin that pushes past the last page
+     boundary and creates a final blank page after the document footer. */
+  .report-body {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
   }
-  .metric-card { break-inside: avoid; }
-  h1, h2, h3 { break-after: avoid; }
+  .report-body > *:last-child { margin-bottom: 0 !important; }
+  hr:last-of-type { display: none; }
+
+  /* Page-break behaviour: keep block elements together so we don't
+     produce mid-card / mid-chart breaks that leave large white gaps. */
+  h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+  .metric-card,
+  .callout,
+  .table-wrap,
+  figure { break-inside: avoid; page-break-inside: avoid; }
   tr { break-inside: avoid; }
+
+  /* Force background colours through to print */
+  .cover, .callout, .metric-card, .table-wrap, figure {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Better grid fit on A4 */
   .metrics-grid { grid-template-columns: repeat(3, 1fr); }
-  body { font-size: 11.5px; }
+
+  /* Slightly smaller headings for print density */
   h1 { font-size: 1.4rem; }
   h2 { font-size: 1.05rem; }
 }

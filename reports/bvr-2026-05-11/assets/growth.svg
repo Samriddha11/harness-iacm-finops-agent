@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="380" viewBox="0 0 760 380">
+    <rect width="760" height="380" class="svg-bg" fill="#ffffff" rx="10"/>
+    <text x="60" y="28" font-size="13.5" font-weight="800" fill="#0d1f35" letter-spacing="-0.015em" font-family="Plus Jakarta Sans,Inter,sans-serif">IaCM Growth — Last 12 Months</text><text x="60" y="46" font-size="10" font-weight="500" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Cumulative workspaces and pipelines</text>
+        <rect x="530.8" y="14" width="161.2" height="22" rx="6" fill="#7c3aed" opacity="0.14"/>
+        <rect x="530.8" y="14" width="161.2" height="22" rx="6" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.55"/>
+        <text x="611.4" y="29" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Pipelines +38.9% / 12 mo</text>
+      
+        <rect x="355.8" y="14" width="167.0" height="22" rx="6" fill="#0278D5" opacity="0.14"/>
+        <rect x="355.8" y="14" width="167.0" height="22" rx="6" fill="none" stroke="#0278D5" stroke-width="1" opacity="0.55"/>
+        <text x="439.3" y="29" text-anchor="middle" font-size="10" font-weight="700" fill="#0278D5" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Workspaces +40.4% / 12 mo</text>
+      
+    
+      <line x1="60" y1="324" x2="680" y2="324" stroke="#e2e8f0" stroke-width="1" />
+      <text x="50" y="327.5" text-anchor="end" font-size="10" font-weight="500" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">0</text>
+    
+      <line x1="60" y1="273.2" x2="680" y2="273.2" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4" opacity="0.55"/>
+      <text x="50" y="276.7" text-anchor="end" font-size="10" font-weight="500" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">400</text>
+    
+      <line x1="60" y1="222.39999999999998" x2="680" y2="222.39999999999998" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4" opacity="0.55"/>
+      <text x="50" y="225.89999999999998" text-anchor="end" font-size="10" font-weight="500" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">800</text>
+    
+      <line x1="60" y1="171.6" x2="680" y2="171.6" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4" opacity="0.55"/>
+      <text x="50" y="175.1" text-anchor="end" font-size="10" font-weight="500" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">1,200</text>
+    
+      <line x1="60" y1="120.79999999999998" x2="680" y2="120.79999999999998" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4" opacity="0.55"/>
+      <text x="50" y="124.29999999999998" text-anchor="end" font-size="10" font-weight="500" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">1,600</text>
+    
+      <line x1="60" y1="70" x2="680" y2="70" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4" opacity="0.55"/>
+      <text x="50" y="73.5" text-anchor="end" font-size="10" font-weight="500" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">2,000</text>
+    
+    <polygon points="60.0,324.0 60.0,301.4 116.4,300.5 172.7,299.6 229.1,298.9 285.5,297.7 341.8,296.7 398.2,296.1 454.5,295.0 510.9,294.2 567.3,293.5 623.6,292.9 680.0,292.3 680.0,324.0" fill="#0278D5" opacity="0.1"/><polygon points="60.0,324.0 60.0,232.6 116.4,229.4 172.7,226.2 229.1,222.4 285.5,219.2 341.8,216.1 398.2,213.5 454.5,209.7 510.9,206.5 567.3,203.4 623.6,199.5 680.0,197.0 680.0,324.0" fill="#7c3aed" opacity="0.1"/>
+    <polyline points="60.0,301.4 116.4,300.5 172.7,299.6 229.1,298.9 285.5,297.7 341.8,296.7 398.2,296.1 454.5,295.0 510.9,294.2 567.3,293.5 623.6,292.9 680.0,292.3" fill="none" stroke="#0278D5" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><polyline points="60.0,232.6 116.4,229.4 172.7,226.2 229.1,222.4 285.5,219.2 341.8,216.1 398.2,213.5 454.5,209.7 510.9,206.5 567.3,203.4 623.6,199.5 680.0,197.0" fill="none" stroke="#7c3aed" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="60.0" cy="301.4" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="116.4" cy="300.5" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="172.7" cy="299.6" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="229.1" cy="298.9" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="285.5" cy="297.7" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="341.8" cy="296.7" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="398.2" cy="296.1" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="454.5" cy="295.0" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="510.9" cy="294.2" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="567.3" cy="293.5" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="623.6" cy="292.9" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="680.0" cy="292.3" r="3.2" fill="#0278D5" stroke="#ffffff" stroke-width="1.5"/><circle cx="60.0" cy="232.6" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="116.4" cy="229.4" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="172.7" cy="226.2" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="229.1" cy="222.4" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="285.5" cy="219.2" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="341.8" cy="216.1" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="398.2" cy="213.5" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="454.5" cy="209.7" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="510.9" cy="206.5" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="567.3" cy="203.4" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="623.6" cy="199.5" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/><circle cx="680.0" cy="197.0" r="3.2" fill="#7c3aed" stroke="#ffffff" stroke-width="1.5"/>
+    
+        <rect x="688.0" y="282.8" width="35.1" height="19" rx="9.5" fill="#0278D5" opacity="0.16"/>
+        <rect x="688.0" y="282.8" width="35.1" height="19" rx="9.5" fill="none" stroke="#0278D5" stroke-width="1" opacity="0.55"/>
+        <text x="705.6" y="295.9" text-anchor="middle" font-size="11" font-weight="800" fill="#0278D5" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">250</text>
+      
+        <rect x="688.0" y="187.5" width="47.9" height="19" rx="9.5" fill="#7c3aed" opacity="0.16"/>
+        <rect x="688.0" y="187.5" width="47.9" height="19" rx="9.5" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.55"/>
+        <text x="712.0" y="200.6" text-anchor="middle" font-size="11" font-weight="800" fill="#7c3aed" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">1,000</text>
+      
+    <text x="60" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Jun &apos;25</text><text x="116.36363636363637" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Jul &apos;25</text><text x="172.72727272727275" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Aug &apos;25</text><text x="229.09090909090907" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Sep &apos;25</text><text x="285.4545454545455" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Oct &apos;25</text><text x="341.8181818181818" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Nov &apos;25</text><text x="398.18181818181813" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Dec &apos;25</text><text x="454.54545454545456" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Jan &apos;26</text><text x="510.90909090909093" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Feb &apos;26</text><text x="567.2727272727273" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Mar &apos;26</text><text x="623.6363636363636" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">Apr &apos;26</text><text x="680" y="340" text-anchor="middle" font-size="9.5" font-weight="600" fill="#64748b" font-family="JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace">May &apos;26</text>
+    
+      <line x1="60" y1="359" x2="76" y2="359" stroke="#0278D5" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="68" cy="359" r="3" fill="#0278D5" stroke="#ffffff" stroke-width="1.4"/>
+      <text x="82" y="362" font-size="9.5" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Workspaces (cumulative)</text>
+    
+      <line x1="230.73" y1="359" x2="246.73" y2="359" stroke="#7c3aed" stroke-width="2.4" stroke-linecap="round"/>
+      <circle cx="238.73" cy="359" r="3" fill="#7c3aed" stroke="#ffffff" stroke-width="1.4"/>
+      <text x="252.73" y="362" font-size="9.5" font-weight="600" fill="#64748b" font-family="Plus Jakarta Sans,Inter,sans-serif">Pipelines (cumulative)</text>
+    
+  </svg>

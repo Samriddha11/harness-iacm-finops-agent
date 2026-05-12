@@ -1,4 +1,5 @@
 import { marked } from "marked";
+import { ChartKindSchema, renderChart, CHART_KINDS } from "../charts/index.js";
 
 export interface FrontMatter {
   title?: string;
@@ -133,20 +134,111 @@ function colorCell(text: string): string {
 }
 
 /**
- * Pre-process markdown: extract all ::: blocks before passing to marked.
- * Replaces them with placeholder tokens and returns a map for later restoration.
+ * Render an inline chart fence — `\`\`\`chart <kind>` + JSON data.
+ *
+ * The fence body MUST be valid JSON (no comments, no trailing commas, no
+ * unquoted keys). The chart_kind comes from the fence info string. Data
+ * is validated via the same Zod schema used by the `harness_iacm_chart`
+ * MCP tool, so any drift between inline charts and tool-generated charts
+ * is impossible.
+ *
+ * Two ways to caption / alt-text the chart:
+ *   1. Add `"title": "..."` inside the data — the chart's built-in title
+ *      slot renders it inside the SVG (matches the look of file-based
+ *      charts).
+ *   2. Add `// caption: ...` (NOT supported — use a markdown line
+ *      immediately after the fence instead).
+ */
+function renderChartFence(infoLine: string, body: string): string {
+  // infoLine is "chart <kind> [optional alt text...]"
+  const m = /^chart\s+([A-Za-z_][\w-]*)(?:\s+(.+))?$/i.exec(infoLine.trim());
+  if (!m) {
+    return chartError(
+      `Bad chart fence header: \`${infoLine}\`. Expected \`chart <kind>\` where <kind> is one of: ${CHART_KINDS.join(", ")}.`,
+    );
+  }
+  const kind = m[1]!;
+  const altText = (m[2] ?? "").trim();
+
+  if (!(CHART_KINDS as readonly string[]).includes(kind)) {
+    return chartError(
+      `Unknown chart kind: \`${kind}\`. Valid kinds: ${CHART_KINDS.join(", ")}.`,
+    );
+  }
+
+  let data: unknown;
+  try {
+    data = JSON.parse(body);
+  } catch (err) {
+    return chartError(
+      `Chart \`${kind}\` — could not parse data as JSON: ${(err as Error).message}. ` +
+      `Use strict JSON (double-quoted keys, no trailing commas, no comments).`,
+    );
+  }
+
+  const parsed = ChartKindSchema.safeParse({ chart_kind: kind, data });
+  if (!parsed.success) {
+    const issues = parsed.error.issues
+      .map((iss) => `${iss.path.join(".") || "(root)"}: ${iss.message}`)
+      .join("; ");
+    return chartError(`Chart \`${kind}\` — data failed validation: ${issues}`);
+  }
+
+  let svg: string;
+  try {
+    svg = renderChart(parsed.data);
+  } catch (err) {
+    return chartError(`Chart \`${kind}\` — render failed: ${(err as Error).message}`);
+  }
+
+  // Hoist alt text onto the SVG itself for accessibility, and wrap in a
+  // <figure> so existing CSS (figure svg, figure { break-inside: avoid })
+  // applies identically to file-based charts.
+  const accessibleSvg = altText
+    ? svg.replace(
+        /<svg\b/,
+        `<svg role="img" aria-label="${esc(altText)}"`,
+      )
+    : svg.replace(/<svg\b/, `<svg role="img"`);
+
+  return `<figure>${accessibleSvg}</figure>`;
+}
+
+function chartError(msg: string): string {
+  return `<div class="callout critical">
+  <span class="callout-badge">Chart error</span>
+  <div class="callout-body"><p>${esc(msg)}</p></div>
+</div>`;
+}
+
+/**
+ * Pre-process markdown: extract all ::: blocks AND inline chart fences
+ * before passing to marked. Replaces them with placeholder tokens and
+ * returns a map for later restoration.
  */
 function preProcess(body: string): { text: string; blocks: string[] } {
   const blocks: string[] = [];
 
-  // Match :::type\n...content...\n::: (closing ::: must be at start of line)
-  const text = body.replace(
+  // 1. Inline chart fences — \`\`\`chart <kind> [optional alt text]\n...JSON...\n\`\`\`
+  //    Closing fence must be at start of a line. The info line is everything
+  //    after the opening fence up to (but not including) the newline; we use
+  //    [^\n]* (not \s+) for the alt text so it can NEVER swallow the body.
+  let text = body.replace(
+    /^```[ \t]*(chart[ \t]+[A-Za-z_][\w-]*[^\n]*)\n([\s\S]*?)^```[ \t]*$/gm,
+    (_, info: string, inner: string) => {
+      const html = renderChartFence(info, inner);
+      const idx = blocks.push(html) - 1;
+      return `IACM_BLOCK_${idx}_PLACEHOLDER`;
+    },
+  );
+
+  // 2. ::: callout / metrics blocks
+  text = text.replace(
     /^:::\s*(\w+)\s*\n([\s\S]*?)^:::/gm,
     (_, type: string, inner: string) => {
       let html: string;
       const trimmedInner = inner.trimEnd();
 
-      // Detect metrics block: inner lines contain "label:"
       const isMetrics = trimmedInner.split("\n").some(
         (l) => l.replace(/^\s*-?\s*/, "").trimStart().toLowerCase().startsWith("label:"),
       );

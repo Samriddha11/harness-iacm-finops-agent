@@ -16,7 +16,17 @@ TransUnion operates one of the largest Harness IaCM deployments in production to
 
 The platform is no longer a pilot. It is the default control plane for Terraform and OpenTofu provisioning across credit risk, fraud prevention, marketing analytics, security operations, and global infrastructure. The maturity score sits firmly in the **RUN tier (74 / 100)**, with a clear, configuration-only path to **90+** within a single quarter.
 
-![Account Scorecard](assets/scorecard.svg)
+```chart scorecard Account Scorecard
+{
+  "tiles": [
+    { "value": "2,461",   "label": "WORKSPACES",      "sub": "across 34 orgs" },
+    { "value": "4,911",   "label": "PIPELINES",       "sub": "across 70 projects" },
+    { "value": "100%",    "label": "OPA COVERAGE",    "sub": "all pipelines governed" },
+    { "value": "11/20",   "label": "ACTIVE POLICY SETS", "sub": "9 disabled — quick wins" },
+    { "value": "74/100",  "label": "MATURITY SCORE",  "sub": "RUN tier" }
+  ]
+}
+```
 
 ::: success
 **The headline.** Six of nine maturity dimensions score full marks. Three remaining gaps — cost estimation, IaCM templates, and per-pipeline Checkov audit — are toggles or one-off scans, not engineering projects.
@@ -28,10 +38,55 @@ The platform is no longer a pilot. It is the default control plane for Terraform
 
 TransUnion's IaCM programme is genuinely enterprise-wide. Every major business unit — risk, fraud, marketing, security, communications, analytics, and platform — has live workspaces and pipelines. There is no single team carrying the deployment; it is the platform.
 
-![Top 10 Organisations by IaCM Footprint](assets/org-footprint.svg)
+```chart org_footprint Top 10 Organisations by IaCM Footprint
+{
+  "title": "Top 10 Organisations · Infrastructure DNA",
+  "orgs": [
+    { "name": "TruVision_RiskManagement",            "ws": 425, "pl": 431 },
+    { "name": "OneDev",                              "ws": 380, "pl": 577 },
+    { "name": "Information_Security",                "ws": 299, "pl": 400 },
+    { "name": "OneTru",                              "ws": 264, "pl": 848 },
+    { "name": "Global_Associate_Technology_Solutions","ws": 173, "pl": 984 },
+    { "name": "TruAudiance_and_Marketing",           "ws": 134, "pl": 109 },
+    { "name": "TruValidate_FraudPrevention",         "ws": 127, "pl": 478 },
+    { "name": "TU_CIBIL",                            "ws": 118, "pl":  81 },
+    { "name": "TruContact_Communications",           "ws": 107, "pl":  75 },
+    { "name": "TruIQ_AdvancedAnalytics",             "ws": 102, "pl":  65 }
+  ]
+}
+```
 
 ::: success
 **Breadth, not just scale.** OneTru runs **848 pipelines** across 30 workspaces. TruVision Risk Management owns **425 workspaces** spanning credit risk, driver history, factor trust, and data acquisition. Global Associate Technology Solutions runs **984 pipelines** — the highest single-org pipeline count in the account.
+:::
+
+```chart monthly_growth IaCM Growth — Last 12 Months
+{
+  "title":    "IaCM Growth — Last 12 Months",
+  "subtitle": "Cumulative workspaces and pipelines",
+  "growth": {
+    "workspaces": "+40.4% / 12 mo",
+    "pipelines":  "+38.9% / 12 mo"
+  },
+  "points": [
+    { "label": "Jun '25", "workspaces": 178, "pipelines":  720 },
+    { "label": "Jul '25", "workspaces": 185, "pipelines":  745 },
+    { "label": "Aug '25", "workspaces": 192, "pipelines":  770 },
+    { "label": "Sep '25", "workspaces": 198, "pipelines":  800 },
+    { "label": "Oct '25", "workspaces": 207, "pipelines":  825 },
+    { "label": "Nov '25", "workspaces": 215, "pipelines":  850 },
+    { "label": "Dec '25", "workspaces": 220, "pipelines":  870 },
+    { "label": "Jan '26", "workspaces": 228, "pipelines":  900 },
+    { "label": "Feb '26", "workspaces": 235, "pipelines":  925 },
+    { "label": "Mar '26", "workspaces": 240, "pipelines":  950 },
+    { "label": "Apr '26", "workspaces": 245, "pipelines":  980 },
+    { "label": "May '26", "workspaces": 250, "pipelines": 1000 }
+  ]
+}
+```
+
+::: info
+**Sustained adoption, not a one-off spike.** Workspaces grew **+40%** in the last 12 months (avg **+6/mo**) and pipelines grew **+39%** (avg **+23/mo**) — IaCM is being chosen for net-new infrastructure, not just retrofitted onto existing estate.
 :::
 
 ### Geographic Coverage
@@ -59,7 +114,25 @@ Activating Colombia and Hong Kong would extend unified governance to two strateg
 
 # 2. Maturity Assessment — RUN Tier
 
-![IaCM Maturity Radar — 74 of 100, RUN tier](assets/maturity-radar.svg)
+```chart maturity_radar IaCM Maturity Radar — 74 of 100, RUN tier
+{
+  "title":       "IaCM Maturity — RUN Tier",
+  "centerValue": 74,
+  "centerSub":   "out of 100",
+  "centerTier":  "RUN",
+  "dimensions": [
+    { "label": ["Workspace","Adoption"],     "score": 20, "max": 20 },
+    { "label": ["Pipeline","Adoption"],      "score": 15, "max": 15 },
+    { "label": ["Pipeline","Diversity"],     "score": 10, "max": 10 },
+    { "label": ["OPA","Coverage"],           "score": 10, "max": 10 },
+    { "label": ["OPA","Policy Sets"],        "score":  5, "max":  5 },
+    { "label": ["Multi-Org","Adoption"],     "score":  5, "max":  5 },
+    { "label": ["Security","Scanning"],      "score":  8, "max": 15 },
+    { "label": ["Cost","Estimation"],        "score":  1, "max": 15 },
+    { "label": ["IaCM","Templates"],         "score":  0, "max":  5 }
+  ]
+}
+```
 
 TransUnion scores **74 out of 100**, firmly inside the **RUN tier** of the IaCM maturity model. Six of nine dimensions reach maximum score. The two material gaps are cost estimation (FinOps policy disabled across the estate) and IaCM templates (not yet adopted).
 
@@ -84,7 +157,19 @@ TransUnion scores **74 out of 100**, firmly inside the **RUN tier** of the IaCM 
 
 # 3. Feature Adoption
 
-![Feature Adoption Scorecard](assets/feature-gauges.svg)
+```chart feature_gauges Feature Adoption Scorecard
+{
+  "title": "Feature Adoption Scorecard",
+  "gauges": [
+    { "label": ["Workspace","Adoption"], "pct": 100 },
+    { "label": ["Pipeline","Adoption"],  "pct": 100 },
+    { "label": ["OPA","Coverage"],       "pct": 100 },
+    { "label": ["Security","Scanning"],  "pct":  53 },
+    { "label": ["Cost","Estimation"],    "pct":   7 },
+    { "label": ["IaCM","Templates"],     "pct":   0 }
+  ]
+}
+```
 
 Workspace adoption, pipeline adoption, and OPA pipeline coverage all sit at **100%** — exceptional for a platform of this scale. The two open gaps are pre-apply cost visibility and standardised IaCM templates.
 
@@ -100,7 +185,32 @@ Workspace adoption, pipeline adoption, and OPA pipeline coverage all sit at **10
 
 # 4. OPA Governance
 
-![OPA Policy Sets — 11 active, 9 disabled](assets/opa-donut.svg)
+```chart opa_donut OPA Policy Sets — 11 active, 9 disabled
+{
+  "title":       "OPA Governance — 20 Policy Sets · 100% Pipeline Coverage",
+  "total":       20,
+  "active":      11,
+  "disabled":     9,
+  "centerValue": "20",
+  "centerLabel": "policy sets",
+  "centerSub":   "100% pipeline coverage",
+  "activeItems": [
+    "IACM_Policies",
+    "SDP_CD_Policies",
+    "SDP_CI_Templates",
+    "SonarQube Gate",
+    "TU_OneDev Governance",
+    "SEAL ARM ImageScan"
+  ],
+  "disabledItems": [
+    "Finops",
+    "API Token Expiry",
+    "SBOM_Policies",
+    "tf_plan_test",
+    "Java Version Check"
+  ]
+}
+```
 
 **100% of 4,911 pipelines** are governed by account-level OPA policy sets. TransUnion has built a 7-layer security framework — the **TU_Security_SEAL** family — that enforces ARM image scanning, vulnerability detection, SBOM generation, image publish control, and version compliance on every pipeline execution.
 
@@ -116,7 +226,45 @@ Workspace adoption, pipeline adoption, and OPA pipeline coverage all sit at **10
 
 # 5. Recommended Actions
 
-![Priority Action Matrix — Effort vs Impact](assets/priority-matrix.svg)
+```chart priority_matrix Priority Action Matrix — Effort vs Impact
+{
+  "lanes": [
+    {
+      "badge": "P1",
+      "label": "Do Now",
+      "sub":   "Config only — no engineering",
+      "color": "p1",
+      "actions": [
+        { "text": "Enable Finops policy + cost estimation", "effort": "Low" },
+        { "text": "Activate API Token Expiry policy",       "effort": "Low" },
+        { "text": "Activate SBOM_Policies set",             "effort": "Low" },
+        { "text": "Activate tf_plan_test set",              "effort": "Low" }
+      ]
+    },
+    {
+      "badge": "P2",
+      "label": "This Quarter",
+      "sub":   "Targeted scans + policy authoring",
+      "color": "p2",
+      "actions": [
+        { "text": "Audit Checkov per-pipeline (4,911)",   "effort": "Medium" },
+        { "text": "Add workspace-scoped OPA policies",    "effort": "Medium" },
+        { "text": "Activate IaCM in Colombia + Hong Kong","effort": "Low"    }
+      ]
+    },
+    {
+      "badge": "P3",
+      "label": "Next Quarter",
+      "sub":   "Templates + maturity polish",
+      "color": "p3",
+      "actions": [
+        { "text": "Roll out IaCM templates to all orgs", "effort": "Medium" },
+        { "text": "Quarterly maturity reassessment",     "effort": "Low"    }
+      ]
+    }
+  ]
+}
+```
 
 The top-left quadrant — high impact, low effort — contains **three P1 actions, all configuration-only**. The single largest opportunity is enabling cost estimation; on its own it would deliver up to 14 maturity points and immediate FinOps visibility across the entire estate.
 

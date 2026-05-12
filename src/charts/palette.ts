@@ -41,6 +41,22 @@ export const PALETTE = {
 
 export const FONT_FAMILY = "Plus Jakarta Sans,Inter,sans-serif";
 
+/**
+ * Modern, technical/cyber-feel font stack for NUMERIC values (big tile
+ * numbers, axis ticks, end-of-line annotations, growth chips, etc.).
+ *
+ * Order:
+ *   1. JetBrains Mono   — modern dev/tech monospace, tabular by default
+ *   2. Space Grotesk    — geometric proportional, slightly futuristic, tabular when used with font-variant-numeric
+ *   3. DM Mono          — already-loaded monospace fallback
+ *   4. ui-monospace / Menlo / Consolas — system fallbacks
+ *
+ * Use this on numeric SVG text elements so digits get the cyber look AND
+ * line up vertically (tabular figures). For non-numeric text keep
+ * FONT_FAMILY for legibility.
+ */
+export const FONT_NUMERIC = "JetBrains Mono,Space Grotesk,DM Mono,ui-monospace,Menlo,Consolas,monospace";
+
 /** Word-wrap a string into lines no longer than `maxChars` characters. */
 export function wrap(text: string, maxChars: number): string[] {
   const words = String(text).split(/\s+/);

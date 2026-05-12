@@ -70,13 +70,16 @@ function inlineSvgImages(html: string, markdownDir: string): string {
         // Strip the XML declaration if present
         svgContent = svgContent.replace(/^<\?xml[^>]*\?>\s*/i, "");
 
-        // Add inline styles to the <svg> root: full width, block display
+        // Add inline styles to the <svg> root: full width, block display.
+        // Vertical margin is intentionally 0 here — the surrounding
+        // <figure> owns all spacing (themes.ts BASE_CSS) so charts
+        // don't double up on margin.
         svgContent = svgContent.replace(
           /^(<svg\b)/i,
-          `$1 role="img" aria-label="${altText}" style="width:100%;height:auto;display:block;margin:20px 0"`,
+          `$1 role="img" aria-label="${altText}" style="width:100%;height:auto;display:block"`,
         );
 
-        return `<figure style="margin:0">${svgContent}</figure>`;
+        return `<figure>${svgContent}</figure>`;
       } catch {
         return fullTag;
       }
@@ -292,21 +295,32 @@ html, body { height: 100%; overflow: hidden; }
   flex-shrink: 0;
 }
 .sb-index-label {
-  font-size: 8px; font-weight: 800; letter-spacing: 0.22em;
+  font-size: 8px; font-weight: 800; letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--sidebar-active-color, #c6ff00);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  opacity: 0.9;
 }
+/* Brand row: Harness diamond + wordmark, side-by-side */
+.sb-brand-row {
+  display: flex; align-items: center; gap: 9px;
+  margin-bottom: 5px;
+}
+.sb-brand-mark {
+  width: 18px; height: 18px; flex-shrink: 0; display: block;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 35%, transparent));
+}
+.sb-brand-mark .harness-mark polygon { fill: var(--sidebar-active-color, var(--accent)); }
 .sb-brand {
   font-family: 'Bricolage Grotesque', sans-serif;
   font-size: 22px; font-weight: 800; letter-spacing: -0.03em;
   color: var(--sidebar-title-color, #f0f0f0);
-  line-height: 1; margin-bottom: 4px;
+  line-height: 1;
 }
 .sb-subbrand {
-  font-size: 9px; font-weight: 600; letter-spacing: 0.15em;
+  font-size: 9px; font-weight: 600; letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--sidebar-dim, rgba(255,255,255,0.3));
+  color: var(--sidebar-dim, rgba(255,255,255,0.32));
   margin-bottom: 14px;
 }
 
@@ -317,15 +331,17 @@ html, body { height: 100%; overflow: hidden; }
 .sb-icon-btn {
   width: 32px; height: 32px; border-radius: 8px;
   border: 1px solid var(--sidebar-border, rgba(255,255,255,0.08));
-  background: transparent;
-  color: var(--sidebar-nav-color, rgba(255,255,255,0.4));
+  background: rgba(255,255,255,0.02);
+  color: var(--sidebar-nav-color, rgba(255,255,255,0.5));
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all 0.15s;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
 }
 .sb-icon-btn:hover {
   background: var(--sidebar-active-bg, rgba(255,255,255,0.08));
   color: var(--sidebar-active-color, #c6ff00);
-  border-color: var(--sidebar-active-color, rgba(255,255,255,0.2));
+  border-color: color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 35%, transparent);
+  transform: translateY(-1px);
 }
 /* Active icon: filled with the theme's dominant accent */
 .sb-icon-btn.active {
@@ -388,26 +404,37 @@ html, body { height: 100%; overflow: hidden; }
 .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); }
 
 .nav-link {
-  display: block; padding: 5px 18px 5px 20px;
+  display: block;
+  position: relative;
+  padding: 6px 18px 6px 22px;
   font-size: 11.5px; font-weight: 400;
-  color: var(--sidebar-nav-color, rgba(255,255,255,0.45));
+  color: var(--sidebar-nav-color, rgba(255,255,255,0.5));
   text-decoration: none; line-height: 1.4;
-  border-left: 2px solid transparent;
-  transition: all 0.1s;
+  border-left: 3px solid transparent;
+  transition: color 0.15s ease, background 0.15s ease, border-left-color 0.15s ease, padding-left 0.15s ease;
 }
 .nav-link:hover {
-  color: var(--sidebar-nav-hover, rgba(255,255,255,0.85));
-  background: rgba(255,255,255,0.03);
+  color: var(--sidebar-nav-hover, rgba(255,255,255,0.92));
+  background: rgba(255,255,255,0.04);
+  padding-left: 24px;
 }
 .nav-link.active {
   color: var(--sidebar-active-color, #c6ff00);
   border-left-color: var(--sidebar-active-color, #c6ff00);
-  background: var(--sidebar-active-bg, rgba(198,255,0,0.04));
+  background: var(--sidebar-active-bg, rgba(198,255,0,0.06));
   font-weight: 600;
 }
-.nav-h1 { font-size: 12px; font-weight: 600; padding-left: 20px; }
-.nav-h2 { font-size: 11px; padding-left: 28px; }
-.nav-h3 { font-size: 10.5px; padding-left: 36px; opacity: 0.75; }
+.nav-link.active::before {
+  content: ''; position: absolute;
+  left: -3px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 18px;
+  background: var(--sidebar-active-color, var(--accent));
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 60%, transparent);
+}
+.nav-h1 { font-size: 12px; font-weight: 600; padding-left: 22px; }
+.nav-h2 { font-size: 11px; padding-left: 30px; }
+.nav-h3 { font-size: 10.5px; padding-left: 38px; opacity: 0.78; }
 
 /* ── Footer ──────────────────────────────────────────────────────────────── */
 .sb-footer {
@@ -428,30 +455,50 @@ html, body { height: 100%; overflow: hidden; }
   font-size: 9px; color: var(--sidebar-dim, rgba(255,255,255,0.3));
 }
 .sb-progress-bar {
-  height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; margin-bottom: 12px;
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  margin-bottom: 14px;
+  overflow: hidden;
 }
 .sb-progress-fill {
-  height: 100%; background: var(--sidebar-active-color, #c6ff00);
-  border-radius: 1px; width: 0%; transition: width 0.3s;
+  height: 100%;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 70%, transparent),
+    var(--sidebar-active-color, var(--accent)));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 50%, transparent);
 }
 .sb-footer-actions {
   display: flex; gap: 6px;
 }
 .btn-pdf {
-  flex: 1; padding: 8px 0; border-radius: 8px;
-  font-size: 11px; font-weight: 700;
-  background: var(--sidebar-active-color, #c6ff00);
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 9px;
+  font-size: 11.5px; font-weight: 700;
+  letter-spacing: 0.04em;
+  background: linear-gradient(180deg,
+    var(--sidebar-active-color, var(--accent)),
+    color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 88%, black));
   color: var(--accent-fg, #000);
   border: none; cursor: pointer;
-  transition: all 0.15s;
-  display: flex; align-items: center; justify-content: center; gap: 5px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--sidebar-active-color, #c6ff00) 35%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    0 2px 12px color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 35%, transparent);
+  transition: transform 0.12s ease, box-shadow 0.18s ease;
 }
 .btn-pdf:hover {
-  opacity: 0.9;
-  box-shadow: 0 4px 18px color-mix(in srgb, var(--sidebar-active-color, #c6ff00) 50%, transparent);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.24),
+    0 6px 22px color-mix(in srgb, var(--sidebar-active-color, var(--accent)) 55%, transparent);
 }
+.btn-pdf:active { transform: translateY(0); }
 .btn-pdf svg { width: 13px; height: 13px; stroke-width: 2; }
 
 /* ── Main content area ───────────────────────────────────────────────────── */
@@ -466,26 +513,23 @@ html, body { height: 100%; overflow: hidden; }
 
 /* Cover styles are defined in themes.ts BASE_CSS (single source of truth). */
 
-/* ── Report body ──────────────────────────────────────────────────────────── */
-.report-body {
-  padding: 44px 52px 72px;
-  max-width: 880px;
-}
+/* ── Report body: layout defined in themes.ts BASE_CSS — do not override. ── */
 
 /* ── Print overrides ─────────────────────────────────────────────────────── */
+/* Print: strip the screen layout (sidebar + viewport-locked scroll) so the
+   printed PDF flows naturally. All page-break / typography / colour-fidelity
+   rules live in themes.ts BASE_CSS — single source of truth, avoids the
+   conflicting/duplicated rules that previously caused blank pages. */
 @media print {
-  @page { size: A4; margin: 14mm 12mm; }
-  html, body { height: auto; overflow: visible; }
-  .app-layout { display: block; height: auto; }
+  html, body { height: auto !important; overflow: visible !important; }
+  .app-layout { display: block !important; height: auto !important; }
   .sidebar { display: none !important; }
-  .main-content { height: auto; overflow: visible; }
-  .cover { page-break-after: always; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-  .callout, .metric-card, .table-wrap { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-  .metric-card { break-inside: avoid; }
-  h1, h2, h3 { break-after: avoid; }
-  tr { break-inside: avoid; }
-  .metrics-grid { grid-template-columns: repeat(4, 1fr); }
-  body { font-size: 11.5px; }
+  .main-content {
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }
 
 /* ── Light-theme sidebar overrides ─────────────────────────────────────────
@@ -507,7 +551,17 @@ html[data-theme="bluestone"] .sidebar   { background: #0a1429 !important; } /* B
     <!-- Top: brand + icons -->
     <div class="sb-top">
       <div class="sb-index-label">Index</div>
-      <div class="sb-brand">Harness</div>
+      <div class="sb-brand-row">
+        <svg class="sb-brand-mark" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g class="harness-mark">
+            <polygon points="12,1 17.5,6.5 12,12 6.5,6.5"/>
+            <polygon points="23,12 17.5,17.5 12,12 17.5,6.5"/>
+            <polygon points="12,23 6.5,17.5 12,12 17.5,17.5"/>
+            <polygon points="1,12 6.5,6.5 12,12 6.5,17.5"/>
+          </g>
+        </svg>
+        <span class="sb-brand">${(fm.customer ?? "Harness").replace("Account: ", "")}</span>
+      </div>
       <div class="sb-subbrand">IaCM · BVR Report</div>
       <div class="sb-icons">
         <button class="sb-icon-btn active" title="Download PDF" onclick="window.print()">
