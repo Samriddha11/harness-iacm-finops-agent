@@ -283,8 +283,22 @@ export function markdownToHtml(markdownBody: string): string {
   // Run marked
   let html = marked.parse(processed, { renderer }) as string;
 
-  // Restore block placeholders
-  html = html.replace(/IACM_BLOCK_(\d+)_PLACEHOLDER/g, (_, idx) => blocks[Number(idx)] ?? "");
+  // Restore block placeholders. marked has wrapped each placeholder in <p>…</p>
+  // (it sees them as plain-text paragraphs), but the blocks they stand in for
+  // (<figure>, <div class="callout">, <div class="metrics-grid">) are all
+  // block-level. Browsers auto-close the <p> before the block, producing an
+  // empty <p></p> followed by the figure/div — invalid HTML that confuses
+  // Safari's page-break engine and contributed to the phantom blank page
+  // between the cover and the first section. So we strip the wrapping <p>
+  // first, then fall back to a bare replace for any unwrapped placeholders.
+  html = html.replace(
+    /<p>\s*IACM_BLOCK_(\d+)_PLACEHOLDER\s*<\/p>/g,
+    (_, idx) => blocks[Number(idx)] ?? "",
+  );
+  html = html.replace(
+    /IACM_BLOCK_(\d+)_PLACEHOLDER/g,
+    (_, idx) => blocks[Number(idx)] ?? "",
+  );
 
   return html;
 }
