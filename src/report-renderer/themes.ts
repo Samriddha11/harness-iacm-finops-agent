@@ -499,7 +499,19 @@ body {
   z-index: 3;
 }
 
-/* Decorative radial glow in top-right corner */
+/* Decorative radial glow in top-right corner.
+   Implementation note: the obvious thing to write here is
+     background: radial-gradient(circle,
+       color-mix(in srgb, var(--cover-line) 22%, transparent) 0%,
+       transparent 65%);
+   …but Safari's PDF/print engine doesn't resolve color-mix() against
+   'transparent' reliably and falls back to the solid first color,
+   producing a hard-edged disc in the printed PDF. We get the same
+   visual on screen by:
+     1. using a plain gradient from the solid accent to transparent
+     2. dimming the whole pseudo-element with opacity: 0.22 — which
+        IS reliable in print and gives the same "22% of the accent
+        colour" effect at the gradient's centre, fading to transparent. */
 .cover::after {
   content: '';
   position: absolute;
@@ -507,8 +519,9 @@ body {
   width: 560px; height: 560px;
   border-radius: 50%;
   background: radial-gradient(circle,
-    color-mix(in srgb, var(--cover-line) 22%, transparent) 0%,
+    var(--cover-line) 0%,
     transparent 65%);
+  opacity: 0.22;
   pointer-events: none;
   z-index: 0;
 }
@@ -644,14 +657,26 @@ body {
 }
 .cover-customer-name {
   font-family: 'Bricolage Grotesque', 'Plus Jakarta Sans', sans-serif;
-  font-size: clamp(3rem, 12vw, 12rem);
+  /* Cap aggressively so the customer name never overflows the A4 cover
+     when the report is printed. On screen it still scales fluidly up to
+     7rem (~112px) which is plenty of presence without breaking words. */
+  font-size: clamp(2.6rem, 7.5vw, 7rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
   color: #ffffff;
-  line-height: 0.94;
+  line-height: 1;
   text-transform: uppercase;
   max-width: 100%;
-  word-break: break-word;
+  /* Keep the whole customer name on one line — breaking individual
+     letters (which clamp+break-word used to do at large sizes) was
+     causing the cover to spill onto a second page when printed. */
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  /* Defensive: if the name truly is too long, ellipsise rather than
+     pushing the cover taller and breaking page-break boundaries. */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Hero stats grid — scales with viewport ──────────────────────────── */
@@ -721,29 +746,90 @@ body {
 /* ── Print: cover fills exactly one A4 page (no blank-page spillover) ──
    The classic "blank second page after the cover" bug is caused by the
    cover ending up 1-2px taller than the printable area due to browser
-   sub-pixel rounding. We:
-     • floor the cover height at content-area-minus-safety, so it always
-       fills a full page;
-     • cap with max-height at the actual printable area;
+   sub-pixel rounding *and* by the cover-customer-name font scaling with
+   vw so it ends up huge in print. We:
+     • pin the cover to exactly the printable A4 height (no min-only
+       min-height — that allowed overflow);
      • clip with overflow:hidden so any sub-pixel overflow is absorbed;
-     • set both legacy (page-break-after) and modern (break-after)
-       properties for cross-browser reliability. */
+     • set fixed font sizes for every cover element so nothing depends
+       on the browser's print-time vw value (which varies wildly);
+     • force a hard page break after the cover. */
 @media print {
   .cover {
-    min-height: calc(297mm - 30mm) !important;
-    max-height: calc(297mm - 24mm) !important;
-    height: auto !important;
+    /* Hard-pin to the printable area of one A4 page. The @page below uses
+       18mm top/bottom + 16mm side margins, so printable height = 297mm
+       − 36mm = 261mm; we use the exact printable height so the very next
+       element (the first <h1>) has zero remaining room on page 1 and
+       therefore naturally flows to page 2 — no forced page-break-after
+       needed. (Chrome's print engine produces a phantom blank page when
+       'page-break-after: always' is combined with a height that already
+       fills the printable area, so we deliberately omit that rule and
+       rely on natural overflow instead.) */
+    height: 260mm !important;
+    min-height: 260mm !important;
+    max-height: 260mm !important;
+    padding: 20mm 22mm 16mm !important;
     overflow: hidden !important;
     box-sizing: border-box;
-    page-break-after: always;
-    break-after: page;
-    page-break-inside: avoid;
-    break-inside: avoid;
+    /* Intentionally NO page-break-after / break-after here — see comment
+       above. The cover fills the whole printable area, so the next
+       element flows to page 2 on its own. */
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
+    /* Disable the screen background animation in print. */
+    animation: none !important;
+    background-size: 100% 100% !important;
   }
   .cover-grid-overlay { opacity: 0.45 !important; }
   .cover::after { animation: none !important; }
+
+  /* ── Lock every cover element to a fixed print size ──
+     Print-time vw can resolve to anything from 8 in/page to a CSS-px
+     viewport, so clamp()-based fluid sizing is unreliable in print.
+     Use rem/pt values that comfortably fit the A4 printable width. */
+  .cover-topbar  { margin-bottom: 28mm !important; }
+  .cover-eyebrow { font-size: 10pt !important; margin-bottom: 14px !important; }
+  .cover-title,
+  .cover h1      {
+    font-size: 38pt !important;
+    line-height: 1.05 !important;
+    margin-bottom: 12px !important;
+  }
+  .cover-subtitle {
+    font-size: 13pt !important;
+    line-height: 1.4 !important;
+    margin-bottom: 26px !important;
+  }
+  .cover-accent-rule { margin-bottom: 20px !important; }
+  .cover-prepared-label { font-size: 9pt !important; }
+  .cover-customer-name {
+    /* Hard cap so 'TRANSUNION'-length names sit on one line on A4. */
+    font-size: 52pt !important;
+    line-height: 1 !important;
+    letter-spacing: -0.035em !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .cover-stats {
+    margin: 14mm 0 12mm !important;
+    gap: 6mm !important;
+  }
+  .cover-stat-tile { padding-top: 10px !important; }
+  .cover-stat-value {
+    font-size: 26pt !important;
+    margin-bottom: 8px !important;
+  }
+  .cover-stat-label { font-size: 8pt !important; letter-spacing: 0.2em !important; }
+
+  .cover-footer {
+    gap: 14mm !important;
+    padding-top: 14px !important;
+  }
+  .cover-footer-label { font-size: 7.5pt !important; }
+  .cover-footer-value { font-size: 11pt !important; }
 }
 
 /* ── Reduced motion ──────────────────────────────────────────────────── */
@@ -1061,7 +1147,11 @@ td:first-child { font-weight: 500; color: var(--fg); }
    stripping the screen layout (sidebar, viewport-locked scroll). All
    page-break behaviour, typography, and colour-fidelity lives here. */
 @media print {
-  @page { size: A4; margin: 12mm 12mm; }
+  /* Generous outer page margins for executive-report breathing room.
+     18mm top/bottom + 16mm left/right is in the same ballpark as
+     premium consulting decks and still leaves a comfortable 178mm ×
+     261mm printable area on A4. */
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
 
   /* Hide screen-only chrome */
   .report-nav { display: none !important; }
@@ -1073,18 +1163,53 @@ td:first-child { font-weight: 500; color: var(--fg); }
     widows: 3;        /* keep ≥3 lines together at bottom of prev page */
   }
 
-  /* Trim the trailing padding/margin that pushes past the last page
-     boundary and creates a final blank page after the document footer. */
+  /* Inner horizontal inset so paragraphs, tables and callouts don't
+     hug the page edges. The cover has its own padding and is excluded.
+     Vertical padding is zero — top-of-page breathing room is owned by
+     each h1's padding-top rule (below).
+
+     Crucially in Safari: force the report-body to ALWAYS start on a
+     fresh page. Without this, Safari renders the cover (which fills
+     page 1 via height: 260mm) and then opens a phantom blank page 2
+     before placing the first h1 on page 3. Forcing the break directly
+     on .report-body gives Safari a single, unambiguous instruction:
+     end page 1 at the cover, start page 2 with the body. */
   .report-body {
-    padding-bottom: 0 !important;
-    margin-bottom: 0 !important;
+    padding: 0 6mm !important;
+    margin: 0 !important;
+    page-break-before: always !important;
+    break-before: page !important;
+    -webkit-column-break-before: always !important;
   }
   .report-body > *:last-child { margin-bottom: 0 !important; }
-  hr:last-of-type { display: none; }
+
+  /* ── One section per page ───────────────────────────────────────────
+     Every h1 *after the first* starts a fresh page. The first h1 is
+     already at the top of page 2 (via the .report-body break above)
+     so it doesn't need its own break-before. */
+  .report-body > h1:not(:first-of-type) {
+    page-break-before: always !important;
+    break-before: page !important;
+    -webkit-column-break-before: always !important;
+    padding-top: 10mm !important;
+    margin-top: 0 !important;
+  }
+  .report-body > h1:first-of-type {
+    padding-top: 2mm !important;
+    margin-top: 0 !important;
+  }
+
+  /* Section separators (--- in markdown -> <hr>) are now redundant
+     because each section starts on its own page. Hiding them avoids
+     stray lines floating at page tops / bottoms. */
+  .report-body hr { display: none !important; }
 
   /* Page-break behaviour: keep block elements together so we don't
      produce mid-card / mid-chart breaks that leave large white gaps. */
   h1, h2, h3 { break-after: avoid; page-break-after: avoid; }
+  p, li      { orphans: 3; widows: 3; }
+  /* Keep paragraphs that immediately follow a heading attached to it. */
+  h1 + p, h2 + p, h3 + p { page-break-before: avoid; break-before: avoid; }
   .metric-card,
   .callout,
   .table-wrap,
