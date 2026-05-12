@@ -90,6 +90,20 @@ const barData = z.object({
   prefix: z.string().optional().describe("Prefix prepended to each value (e.g. '$')"),
 });
 
+const monthlyGrowthData = z.object({
+  points: z.array(z.object({
+    label:      z.string().describe("Short month label, e.g. \"Jun '25\""),
+    workspaces: z.number().int().nonnegative().describe("Cumulative workspace count at month end"),
+    pipelines:  z.number().int().nonnegative().describe("Cumulative pipeline count at month end"),
+  })).min(2).max(36).describe("Time-ordered points, oldest first. 12 = sweet spot."),
+  title:    z.string().optional(),
+  subtitle: z.string().optional().describe("Optional one-line subtitle, e.g. 'Last 12 months · cumulative totals'"),
+  growth:   z.object({
+    workspaces: z.string().optional().describe("Pre-formatted growth chip text, e.g. '+40% / 12 mo'"),
+    pipelines:  z.string().optional().describe("Pre-formatted growth chip text, e.g. '+39% / 12 mo'"),
+  }).optional(),
+});
+
 export const ChartKindSchema = z.discriminatedUnion("chart_kind", [
   z.object({ chart_kind: z.literal("scorecard"),       data: scorecardData       }),
   z.object({ chart_kind: z.literal("maturity_radar"),  data: maturityRadarData   }),
@@ -98,6 +112,7 @@ export const ChartKindSchema = z.discriminatedUnion("chart_kind", [
   z.object({ chart_kind: z.literal("org_footprint"),   data: orgFootprintData    }),
   z.object({ chart_kind: z.literal("priority_matrix"), data: priorityMatrixData  }),
   z.object({ chart_kind: z.literal("bar"),             data: barData             }),
+  z.object({ chart_kind: z.literal("monthly_growth"),  data: monthlyGrowthData   }),
 ]);
 
 export type ChartKindInput = z.infer<typeof ChartKindSchema>;
@@ -112,6 +127,7 @@ export function renderChart(input: ChartKindInput): string {
     case "org_footprint":   return gen.orgFootprint(input.data);
     case "priority_matrix": return gen.priorityMatrix(input.data);
     case "bar":             return gen.bar(input.data);
+    case "monthly_growth":  return gen.monthlyGrowth(input.data);
   }
 }
 
@@ -119,4 +135,5 @@ export function renderChart(input: ChartKindInput): string {
 export const CHART_KINDS = [
   "scorecard", "maturity_radar", "feature_gauges",
   "opa_donut", "org_footprint", "priority_matrix", "bar",
+  "monthly_growth",
 ] as const;

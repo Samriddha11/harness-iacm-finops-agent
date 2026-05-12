@@ -277,16 +277,131 @@ Tones available: `info`, `success`, `warning`, `critical`, `action`, `quote`.
 - **Hover lift on charts**, **soft pulse on the sidebar brand**, **slow gradient drift on the cover**
 - **`prefers-reduced-motion` honoured**; **`beforeprint` event fast-forwards** all animations to a stable final state for clean PDF export
 
-### Chart-regeneration scripts
+### Inline chart fences — data lives in the markdown
 
-Reusable Node scripts under `scripts/` regenerate theme-friendly SVG charts:
+Charts can be embedded **directly** in the markdown using a fenced code block with the language `chart <kind>`. The renderer parses the JSON body, validates it via the same Zod schema used by the `harness_iacm_chart` MCP tool, and inlines the SVG at that exact spot. **No separate `.svg` files, no regen step.**
+
+```` markdown
+```chart monthly_growth IaCM Growth — Last 12 Months
+{
+  "title": "IaCM Growth — Last 12 Months",
+  "subtitle": "Cumulative workspaces and pipelines",
+  "growth": { "workspaces": "+40.4% / 12 mo", "pipelines": "+38.9% / 12 mo" },
+  "points": [
+    { "label": "Jun '25", "workspaces": 178, "pipelines":  720 },
+    { "label": "May '26", "workspaces": 250, "pipelines": 1000 }
+  ]
+}
+```
+````
+
+Rules:
+
+- The fence info line is `chart <kind> [optional alt text]`. Alt text is hoisted onto the SVG via `aria-label` for accessibility.
+- The body MUST be **strict JSON** — double-quoted keys, no trailing commas, no comments, no JS expressions.
+- `<kind>` must be one of: `scorecard`, `maturity_radar`, `feature_gauges`, `opa_donut`, `org_footprint`, `priority_matrix`, `bar`, `monthly_growth`.
+- If the JSON is malformed or fails Zod validation, the renderer shows a friendly error callout in place of the chart — the page never breaks.
+
+This is the **recommended pattern for new BVRs** because:
+
+- Editing data in markdown → save → refresh — no `regen-bvr-charts.mjs` step.
+- Single source of truth: the markdown file IS the customer report.
+- Cross-customer consistency is preserved — every chart still goes through the same canonical generator in `src/charts/`, only the JSON values change.
+- Fewer files to manage (no per-customer `assets/*.svg` to keep in sync with markdown).
+
+The legacy `![alt](assets/*.svg)` reference style still works for backward compatibility, but inline fences are simpler to maintain.
+
+### Reusable chart objects (consistency across customers)
+
+Every chart in a BVR is produced by one of seven canonical generators in [`src/charts/generators.ts`](src/charts/generators.ts):
+
+| Chart kind | Use for |
+|---|---|
+| `scorecard` | Row of headline metric tiles at the top of the report |
+| `maturity_radar` | N-axis spider with central score (CRAWL / WALK / RUN / FLY) |
+| `feature_gauges` | Circular progress rings for adoption % |
+| `opa_donut` | Active vs disabled policy sets + side legend |
+| `org_footprint` | Diverging bars (workspaces left, pipelines right) |
+| `priority_matrix` | 3-lane recommendation cards (P1/P2/P3) with effort chips |
+| `bar` | Generic horizontal bar chart |
+
+Every generator emits hex codes that the theme system in [`src/report-renderer/themes.ts`](src/report-renderer/themes.ts) recolours via CSS attribute selectors — so the same chart automatically adapts to all 8 themes without regeneration.
+
+The chart **styles never change between customers**. Only the data does. That gives every customer report a consistent, polished look.
+
+#### Producing a BVR for a new customer
 
 ```bash
-node scripts/regen-priority-matrix.mjs reports/<report-id>/assets
-node scripts/regen-org-footprint.mjs   reports/<report-id>/assets
+# 1. Clone the reference BVR folder
+cp -r reports/bvr-2026-05-11 reports/<new-customer>
+
+# 2. Edit the per-customer data file (numbers + names only)
+vim reports/<new-customer>/charts.data.mjs
+
+# 3. Edit the markdown narrative + frontmatter
+vim reports/<new-customer>/iacm-bvr.md
+
+# 4. Regenerate all 6 SVGs from the canonical chart objects
+node scripts/regen-bvr-charts.mjs reports/<new-customer>
+
+# 5. Render via the MCP `harness_iacm_render` tool, or visit
+#    http://localhost:<port>/report/<id> after registering it.
 ```
 
-These produce SVGs that use only hex codes mapped in the theme palette — the result auto-adapts to every theme.
+[`reports/bvr-2026-05-11/charts.data.mjs`](reports/bvr-2026-05-11/charts.data.mjs) is the source-of-truth template — every chart kind is documented inline with the exact data shape it needs. The data is Zod-validated at render time ([`src/charts/index.ts`](src/charts/index.ts)) so bad input fails fast with a clear error.
+
+#### When the agent does it for you
+
+The same generators are exposed as the `harness_iacm_chart` MCP tool ([`src/tools/harness-iacm-chart.ts`](src/tools/harness-iacm-chart.ts)). The `iacm_bvr` prompt orchestrates the full workflow: scan the account, build the chart data, call `harness_iacm_chart` for each chart, write the markdown, render the live URL.
+
+### MCP prompts — opinionated workflows for fast results
+
+Any MCP client (Cursor, Claude Desktop, custom SDK) can invoke these named prompts to get a consistent, polished result without writing the orchestration logic themselves. All chart generation goes through the same canonical `harness_iacm_chart` tool, so style is identical across every prompt and every customer.
+
+| Prompt | What it does | When to use |
+|---|---|---|
+| `iacm_bvr` | Full Business Value Review: scan → 5 charts → markdown → live URL | First-time customer report, full QBR / EBR pack |
+| `iacm_quick_chart` | Render ONE polished SVG (any of the 7 chart kinds) | Drop a chart into a slide deck or email; no full BVR needed |
+| `iacm_maturity_check` | Maturity score + tier + radar + ranked path-to-next-tier | Quarterly check-in, "did our score move?", pre-call read |
+| `iacm_quick_wins` | Only config-only opportunities (disabled OPA sets + features) | Pre-call ammunition for CSM/TAM, change-window planning |
+| `iacm_render` | Render an existing markdown BVR across all 8 themes | Customer wants a different look; markdown was edited |
+| `opa_policy_analysis` | OPA-focused adoption report (IaCM-scoped by default) | Governance deep-dive, separate from full BVR |
+
+**Why this guarantees consistency for any client:**
+
+1. The chart **styles** live in code (`src/charts/generators.ts`) — clients cannot accidentally produce off-brand visuals.
+2. The chart **data shapes** are Zod-validated at render time — bad input fails fast with a clear error, never produces a broken chart.
+3. The chart **palette** is a single shared map (`src/charts/palette.ts`) referenced by every theme — switching themes never breaks a chart.
+4. The prompts themselves include the full schema in the prompt text — the LLM doesn't have to guess field names.
+
+#### Calling the prompts from a client
+
+In Cursor / Claude Desktop, open the `/` (slash command) menu and pick the prompt name. The client will fill in the arguments interactively.
+
+For programmatic / SDK access, the prompt name + arguments are the contract:
+
+```jsonc
+{
+  "name": "iacm_quick_chart",
+  "arguments": {
+    "chart_kind": "scorecard",
+    "output_path": "/Users/me/work/proj/charts/q4-scorecard.svg",
+    "ask": "5 tiles: 250 workspaces, 1000 pipelines, 100% OPA, 47/55 active sets, 74/100 maturity"
+  }
+}
+```
+
+#### Example one-liner prompts (paste into chat)
+
+> Run `iacm_bvr` for **TransUnion** with workspace_root `/Users/me/work/iacm-bvr` and theme `minimal`.
+
+> Run `iacm_maturity_check` and write the radar to `/Users/me/work/charts/maturity.svg`.
+
+> Run `iacm_quick_wins` — what can we ship this week with no engineering work?
+
+> Run `iacm_render` for `/Users/me/work/iacm-bvr/reports/<id>/iacm-bvr.md` with theme `bluestone` for the customer call.
+
+> Run `iacm_quick_chart` with chart_kind `org_footprint` to `/Users/me/work/charts/footprint.svg` — top 10 orgs by IaCM footprint.
 
 ---
 

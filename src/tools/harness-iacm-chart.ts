@@ -34,7 +34,8 @@ export function registerChartTool(server: McpServer): void {
         "  • opa_donut       — active vs disabled policy-set donut + side legend\n" +
         "  • org_footprint   — diverging bars (workspaces left, pipelines right) + DNA chip\n" +
         "  • priority_matrix — 3-lane recommendation cards (P1/P2/P3) with effort chips\n" +
-        "  • bar             — generic horizontal bar chart for any rankable counts\n\n" +
+        "  • bar             — generic horizontal bar chart for any rankable counts\n" +
+        "  • monthly_growth  — dual-line cumulative chart of workspaces + pipelines over N months (pair with harness_iacm_growth)\n\n" +
         "Each chart_kind has a precise data schema — call this tool with " +
         "chart_kind first to get the right shape, then fill it from your scan results.",
       inputSchema: z.object({

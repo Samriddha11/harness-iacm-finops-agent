@@ -104,10 +104,28 @@ Run these tools and keep their structured responses for use in Steps 2-5:
 
 ---
 
-## Step 2 — Generate the 5 polished charts
+## Step 2 — Plan the charts
 
-Call \`harness_iacm_chart\` **once per chart**. Each call writes an SVG
-to disk; reference it from the markdown in Step 4.
+You have **two equivalent ways** to put charts in the BVR:
+
+**(A) Inline chart fences in the markdown — RECOMMENDED.** The chart data
+lives directly inside the markdown as a JSON fenced code block with the
+language \`chart <kind>\`. The renderer parses, validates (via the same
+Zod schema used by \`harness_iacm_chart\`), and inlines the SVG at render
+time. No \`harness_iacm_chart\` calls, no SVG files on disk, no regen
+step. Use this for every new BVR.
+
+**(B) Pre-rendered SVG files via \`harness_iacm_chart\`.** Legacy pattern
+— call the tool once per chart with an \`output_path\`, then reference
+the file from markdown via \`![alt](assets/<chart>.svg)\`. Only use this
+when the customer asks for standalone SVG asset files.
+
+Both routes produce **visually identical** output because they share the
+same canonical chart generators in \`src/charts/\`.
+
+The example data shapes in Steps 2.1–2.6 below show the JSON to put
+**inside** the chart fence in your markdown for option (A). For option
+(B), the same JSON goes into the \`data\` field of \`harness_iacm_chart\`.
 
 ### 2.1 — Scorecard (top-of-page hero metrics)
 
@@ -223,7 +241,47 @@ as WORKSPACE-LED / BALANCED / PIPELINE-LED based on the pl/ws ratio.
 }
 \`\`\`
 
-### 2.6 — Priority matrix (Recommended Actions)
+### 2.6 — Monthly growth (optional but highly recommended)
+
+If \`harness_iacm_growth\` is available in this session, call it to pull a
+real 12-month time-series and render a cumulative dual-line chart. Skip
+this step only if the customer explicitly says they don't want trajectory
+data in the BVR.
+
+\`\`\`json
+{
+  "tool": "harness_iacm_growth",
+  "months": 12
+}
+\`\`\`
+
+Then render with the canonical \`monthly_growth\` chart kind:
+
+\`\`\`json
+{
+  "tool": "harness_iacm_chart",
+  "chart_kind": "monthly_growth",
+  "data": {
+    "title": "IaCM Growth — Last 12 Months",
+    "subtitle": "Cumulative workspaces and pipelines",
+    "growth": {
+      "workspaces": "+<workspaces.growthPct>% / 12 mo",
+      "pipelines":  "+<pipelines.growthPct>% / 12 mo"
+    },
+    "points": [
+      { "label": "<monthly[0].label>",  "workspaces": <monthly[0].workspaces.cumulative>,  "pipelines": <monthly[0].pipelines.cumulative> },
+      ... 12 entries from monthly[] (use cumulative counts) ...
+    ]
+  },
+  "output_path": "${workspace_root}/reports/<bvr-id>/assets/growth.svg"
+}
+\`\`\`
+
+Reference it from the markdown as \`![IaCM Growth — Last 12 Months](assets/growth.svg)\`,
+typically inside Section 1 (Enterprise Footprint) right after the org
+footprint chart, with a callout summarising the trajectory.
+
+### 2.7 — Priority matrix (Recommended Actions)
 
 Three lanes (P1 / P2 / P3) with effort chips. P1 = config-only,
 P2 = some engineering, P3 = longer-term investments.
@@ -270,6 +328,10 @@ This goes into the \`heroStats\` frontmatter line in Step 4.
 
 Save to: \`${workspace_root}/reports/<bvr-id>/iacm-bvr.md\`
 
+**Use inline chart fences** (option A from Step 2). Each chart is a
+fenced code block with the language \`chart <kind>\` followed by JSON.
+The renderer parses, validates, and inlines the SVG at that location.
+
 Use this exact structure (frontmatter, sections, callouts):
 
 \`\`\`markdown
@@ -289,7 +351,17 @@ heroStats: "<see Step 3>"
 
 <2–3 sentences: scale of the deployment, headline maturity score, single most important opportunity.>
 
-![Account Scorecard](assets/scorecard.svg)
+\\\`\\\`\\\`chart scorecard Account Scorecard
+{
+  "tiles": [
+    { "value": "<workspaces>",     "label": "WORKSPACES",         "sub": "across <orgs> orgs" },
+    { "value": "<pipelines>",      "label": "PIPELINES",          "sub": "across <projects> projects" },
+    { "value": "<opa_pct>%",       "label": "OPA COVERAGE",       "sub": "all pipelines governed" },
+    { "value": "<active>/<total>", "label": "ACTIVE POLICY SETS", "sub": "<disabled> disabled — quick wins" },
+    { "value": "<score>/100",      "label": "MATURITY SCORE",     "sub": "<tier> tier" }
+  ]
+}
+\\\`\\\`\\\`
 
 ::: success
 **The headline.** <One sentence framing the strongest signal — e.g. "Six of nine maturity dimensions score full marks.">
@@ -301,10 +373,20 @@ heroStats: "<see Step 3>"
 
 <2–3 sentences on breadth: number of orgs, business units, geographies covered.>
 
-![Top 10 Organisations by IaCM Footprint](assets/org-footprint.svg)
+\\\`\\\`\\\`chart org_footprint Top 10 Organisations by IaCM Footprint
+{ /* org_footprint data — see Step 2.5 */ }
+\\\`\\\`\\\`
 
 ::: success
 **Breadth, not just scale.** <Concrete observations — name the top 1–2 orgs and what makes their pattern stand out.>
+:::
+
+\\\`\\\`\\\`chart monthly_growth IaCM Growth — Last 12 Months
+{ /* monthly_growth data — see Step 2.6 */ }
+\\\`\\\`\\\`
+
+::: info
+**Sustained adoption.** <One sentence on workspace + pipeline growth percentages.>
 :::
 
 ### Geographic Coverage
@@ -315,7 +397,9 @@ heroStats: "<see Step 3>"
 
 # 2. Maturity Assessment — <tier> Tier
 
-![IaCM Maturity Radar — <score> of 100, <tier> tier](assets/maturity-radar.svg)
+\\\`\\\`\\\`chart maturity_radar IaCM Maturity Radar — <score> of 100, <tier> tier
+{ /* maturity_radar data — see Step 2.2 */ }
+\\\`\\\`\\\`
 
 <2–3 sentences explaining the score and the path to the next tier.>
 
@@ -331,7 +415,9 @@ heroStats: "<see Step 3>"
 
 # 3. Feature Adoption
 
-![Feature Adoption Scorecard](assets/feature-gauges.svg)
+\\\`\\\`\\\`chart feature_gauges Feature Adoption Scorecard
+{ /* feature_gauges data — see Step 2.3 */ }
+\\\`\\\`\\\`
 
 <2 sentences on top-line adoption.>
 
@@ -347,7 +433,9 @@ heroStats: "<see Step 3>"
 
 # 4. OPA Governance
 
-![OPA Policy Sets — <active> active, <disabled> disabled](assets/opa-donut.svg)
+\\\`\\\`\\\`chart opa_donut OPA Policy Sets — <active> active, <disabled> disabled
+{ /* opa_donut data — see Step 2.4 */ }
+\\\`\\\`\\\`
 
 <2 sentences naming the strongest policy framework.>
 
@@ -363,7 +451,9 @@ heroStats: "<see Step 3>"
 
 # 5. Recommended Actions
 
-![Priority Action Matrix — Effort vs Impact](assets/priority-matrix.svg)
+\\\`\\\`\\\`chart priority_matrix Priority Action Matrix — Effort vs Impact
+{ /* priority_matrix data — see Step 2.7 */ }
+\\\`\\\`\\\`
 
 <1 sentence highlighting the P1 quadrant.>
 
@@ -430,12 +520,17 @@ the response so they can switch themes interactively.
 
 ## Critical rules
 
-- **Never** use \`harness_ccm_finops_chart\` for IaCM data — use
-  \`harness_iacm_chart\` so the chart matches the report theme.
+- **Inline chart fences are the default.** Embed JSON directly in the
+  markdown with \`\\\`\\\`\\\`chart <kind>\` — no \`harness_iacm_chart\`
+  calls, no SVG files, no regen step. Only use \`harness_iacm_chart\`
+  if the customer explicitly needs standalone SVG asset files.
+- **Strict JSON inside chart fences.** Double-quoted keys, no trailing
+  commas, no comments, no JS expressions. If validation fails the
+  renderer shows an inline error callout — fix the JSON, don't ignore it.
+- **Never** use \`harness_ccm_finops_chart\` for IaCM data — only the
+  IaCM chart kinds match the report theme.
 - **Every** number must come from a real tool response — no placeholders.
 - The tone is **factual and customer-facing**, not internal/jargony.
-- Chart \`output_path\` values are **absolute** and live under
-  \`${workspace_root}/reports/<bvr-id>/assets/\`.
 - The \`heroStats\` line uses **\`;\` between stats** and **\`|\` between
   value and label** — never mix the separators.
 - After Step 5, **return the URL**, do not summarise the BVR in chat —
