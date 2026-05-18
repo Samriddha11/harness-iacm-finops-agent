@@ -190,8 +190,9 @@ For workspace runs: \`pending\`, \`queued\`, \`running\`, \`planned\`, \`applied
 |--------|-----------------|-------|
 | PAT/SA token | \`HARNESS_API_KEY\` / \`X-Harness-Api-Key\` | Recommended |
 | Bearer JWT | \`HARNESS_BEARER_TOKEN\` / \`X-Harness-Token\` | Browser session token |
+| Cookie | \`HARNESS_HEADER_COOKIE\` / \`X-Harness-Cookie\` | Raw browser \`Cookie:\` header — last-resort fallback when no PAT or bearer is available |
 
-Account ID is auto-extracted from PAT format \`pat.<accountId>.<tokenId>.<secret>\`.
+Auth priority: PAT > Bearer > Cookie. Account ID is auto-extracted from PAT format \`pat.<accountId>.<tokenId>.<secret>\`; with Bearer or Cookie you must set \`HARNESS_ACCOUNT_ID\` (or \`X-Harness-Account\`) explicitly.
 
 ---
 

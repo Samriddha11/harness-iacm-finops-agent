@@ -46,6 +46,7 @@ function mcpJsonRpcMethodFromBody(body: unknown): string | undefined {
  *   - X-Harness-Token         → HARNESS_BEARER_TOKEN
  *   - Authorization: Bearer … → HARNESS_BEARER_TOKEN (alternate)
  *   - X-Harness-Api-Key       → HARNESS_API_KEY
+ *   - X-Harness-Cookie        → HARNESS_HEADER_COOKIE (raw browser Cookie value)
  *   - X-Harness-Account       → HARNESS_ACCOUNT_ID
  *   - X-Harness-Base-Url      → HARNESS_BASE_URL
  *   - X-Harness-Default-Org   → HARNESS_DEFAULT_ORG_ID
@@ -65,6 +66,9 @@ export function parseSessionAuthHeaders(headers: HeaderBag): SessionAuthOverride
 
   const apiKey = firstHeader(headers, "x-harness-api-key");
   if (apiKey) overrides.HARNESS_API_KEY = apiKey;
+
+  const cookie = firstHeader(headers, "x-harness-cookie");
+  if (cookie) overrides.HARNESS_HEADER_COOKIE = cookie;
 
   const account = firstHeader(headers, "x-harness-account");
   if (account) overrides.HARNESS_ACCOUNT_ID = account;
@@ -128,6 +132,7 @@ async function startStdio(globalConfig: GlobalConfig): Promise<void> {
     baseUrl: config.HARNESS_BASE_URL,
     tokenPresent: Boolean(config.HARNESS_BEARER_TOKEN),
     apiKeyPresent: Boolean(config.HARNESS_API_KEY),
+    cookiePresent: Boolean(config.HARNESS_HEADER_COOKIE),
     readOnly: config.HARNESS_READ_ONLY,
   });
 
@@ -166,6 +171,7 @@ async function startHttp(globalConfig: GlobalConfig, port: number): Promise<void
     "Authorization",
     "X-Harness-Token",
     "X-Harness-Api-Key",
+    "X-Harness-Cookie",
     "X-Harness-Account",
     "X-Harness-Base-Url",
     "X-Harness-Default-Org",
@@ -301,6 +307,7 @@ async function startHttp(globalConfig: GlobalConfig, port: number): Promise<void
             tokenPresent: Boolean(sessionConfigSnapshot.HARNESS_BEARER_TOKEN),
             tokenTail: maskToken(sessionConfigSnapshot.HARNESS_BEARER_TOKEN),
             apiKeyPresent: Boolean(sessionConfigSnapshot.HARNESS_API_KEY),
+            cookiePresent: Boolean(sessionConfigSnapshot.HARNESS_HEADER_COOKIE),
           });
         },
       });

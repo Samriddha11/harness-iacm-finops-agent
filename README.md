@@ -12,6 +12,7 @@ It lets AI agents like **Cursor**, **Claude Desktop**, and any MCP-compatible cl
 
 - **12 MCP tools** covering discovery, listing, drill-down, run triggering, governance scans, maturity scoring, and report rendering
 - **Two transports** — stdio (for local CLI / Cursor) and streamable HTTP (for cloud clients)
+- **Three-way auth fallback** — `HARNESS_API_KEY` (PAT/SA, recommended) → `HARNESS_BEARER_TOKEN` (session JWT) → `HARNESS_HEADER_COOKIE` (raw browser cookie). First one set wins — no PAT required to get unblocked.
 - **Per-session auth via headers** in HTTP mode — multi-tenant friendly without restarting the server
 - **Read-only mode** (`HARNESS_READ_ONLY=true`) blocks all write operations (plans / applies / destroys)
 - **Built-in retry, rate-limiting, and request-timeout** controls
@@ -47,7 +48,7 @@ It lets AI agents like **Cursor**, **Claude Desktop**, and any MCP-compatible cl
 
 - **Node.js >= 20**
 - **npm**, **pnpm**, or **yarn**
-- A Harness account with at least **API key + IaCM access** (a Personal Access Token works)
+- A Harness account with **IaCM access** and one of: a Personal Access Token / Service-Account token *(recommended)*, a Bearer JWT, or — as a last-resort fallback — a raw browser `Cookie` header copied from DevTools while logged in to the Harness UI
 
 ### Install
 
@@ -62,10 +63,18 @@ npm run build
 
 ```bash
 cp .env.example .env
-# Edit .env and add your HARNESS_API_KEY (PAT or service-account token)
+# Then open .env and fill in ONE of the three auth methods below.
 ```
 
-A PAT looks like `pat.<accountId>.<tokenId>.<secret>` — the account ID is **auto-extracted** from the token, so you don't need to set `HARNESS_ACCOUNT_ID` separately when using a PAT.
+Pick **one** of these (priority is API key > Bearer > Cookie — first one found wins):
+
+| Method | What to put in `.env` | When to use |
+|---|---|---|
+| **PAT / Service-account token** *(recommended)* | `HARNESS_API_KEY=pat.<accountId>.<tokenId>.<secret>` | Long-lived, account-scoped. Account ID is **auto-extracted** from the token, so `HARNESS_ACCOUNT_ID` is not needed. |
+| **Bearer JWT** | `HARNESS_BEARER_TOKEN=<jwt>` + `HARNESS_ACCOUNT_ID=<id>` | When you have a session JWT but no PAT. Common for CCM / Lightwing routes. |
+| **Raw browser cookie** *(last-resort fallback)* | `HARNESS_HEADER_COOKIE=<entire Cookie: header value>` + `HARNESS_ACCOUNT_ID=<id>` | When you have **neither** a PAT nor a bearer token — copy the `Cookie:` header from your browser DevTools while logged into the Harness UI. Short-lived; refresh when your browser session expires. |
+
+The cookie value is sent verbatim as the `Cookie` header on every outbound request — paste the **whole** DevTools value, don't try to extract a single key.
 
 ### Run
 
@@ -97,18 +106,19 @@ GET    /health  — health check (returns active session count)
 
 All settings live in `.env`. See `.env.example` for the full reference.
 
-### Authentication (use ONE)
+### Authentication (use ONE — priority: API key > Bearer > Cookie)
 
 | Variable | Notes |
 |---|---|
 | `HARNESS_API_KEY` | PAT or service-account token — `pat.<accountId>.<tokenId>.<secret>`. Account ID is auto-extracted. **Recommended.** |
 | `HARNESS_BEARER_TOKEN` | Browser session JWT — useful for CCM / Lightwing endpoints that don't accept PATs |
+| `HARNESS_HEADER_COOKIE` | Raw `Cookie:` header value copied from browser DevTools. **Last-resort fallback** when neither of the above is available — the full string is sent verbatim as the `Cookie` header on every outbound request. Short-lived; refresh it when your browser session expires. Requires `HARNESS_ACCOUNT_ID` to be set explicitly (no auto-extract). |
 
 ### Account & scope
 
 | Variable | Default | Notes |
 |---|---|---|
-| `HARNESS_ACCOUNT_ID` | — | Required when using a bearer token (PAT embeds it) |
+| `HARNESS_ACCOUNT_ID` | — | Required when using a Bearer token or Cookie. PATs embed the account ID, so it's optional with `HARNESS_API_KEY`. |
 | `HARNESS_DEFAULT_ORG_ID` | `default` | Avoids needing to pass `org_id` on every call |
 | `HARNESS_DEFAULT_PROJECT_ID` | — | Avoids needing to pass `project_id` on every call |
 | `HARNESS_BASE_URL` | `https://app.harness.io` | Override for self-hosted / on-prem Harness |
@@ -140,6 +150,7 @@ In HTTP mode, you can override credentials per request using headers — this le
 |---|---|
 | `X-Harness-Api-Key` | `HARNESS_API_KEY` |
 | `X-Harness-Token` *or* `Authorization: Bearer …` | `HARNESS_BEARER_TOKEN` |
+| `X-Harness-Cookie` | `HARNESS_HEADER_COOKIE` (raw browser Cookie value) |
 | `X-Harness-Account` | `HARNESS_ACCOUNT_ID` |
 | `X-Harness-Base-Url` | `HARNESS_BASE_URL` |
 | `X-Harness-Default-Org` | `HARNESS_DEFAULT_ORG_ID` |
@@ -158,7 +169,10 @@ Add the server to your Cursor MCP config (`~/.cursor/mcp.json`):
   "mcpServers": {
     "harness-iacm": {
       "command": "node",
-      "args": ["/absolute/path/to/harness-iacm-finops-agent/build/index.js", "stdio"],
+      "args": [
+        "/absolute/path/to/harness-iacm-finops-agent/build/index.js",
+        "stdio"
+      ],
       "env": {
         "HARNESS_API_KEY": "pat.xxxx.xxxx.xxxx"
       }
@@ -168,6 +182,50 @@ Add the server to your Cursor MCP config (`~/.cursor/mcp.json`):
 ```
 
 Restart Cursor — `harness_iacm_*` tools will appear in the tool palette and be available to the agent.
+
+### Choosing which auth env to set
+
+Use **whichever one you have access to** — set only one of the three:
+
+```jsonc
+// Option A — recommended: PAT / SA token. Account ID is auto-extracted.
+"env": { "HARNESS_API_KEY": "pat.<accountId>.<tokenId>.<secret>" }
+
+// Option B — Bearer JWT (browser session token). Account ID required.
+"env": {
+  "HARNESS_BEARER_TOKEN": "eyJhbGciOi...",
+  "HARNESS_ACCOUNT_ID":   "your_account_id"
+}
+
+// Option C — Raw browser cookie (last-resort fallback). Account ID required.
+"env": {
+  "HARNESS_HEADER_COOKIE": "token=eyJhbGciOi...; sessionId=...; ...",
+  "HARNESS_ACCOUNT_ID":    "your_account_id"
+}
+```
+
+### Setting this up on any machine (no laptop-specific paths)
+
+The `args[0]` value must be an **absolute path** to the built `build/index.js` on whichever machine is running the MCP client. The two-step setup is identical for every user:
+
+```bash
+git clone https://github.com/Samriddha11/harness-iacm-finops-agent.git
+cd harness-iacm-finops-agent
+npm install
+npm run build
+
+# Print the absolute path to drop into args[0]
+echo "$(pwd)/build/index.js"            # macOS / Linux
+echo "$((Get-Location).Path)\build\index.js"   # Windows PowerShell
+```
+
+Examples of what different users would end up with:
+
+- macOS: `/Users/alice/code/harness-iacm-finops-agent/build/index.js`
+- Linux: `/home/bob/projects/harness-iacm-finops-agent/build/index.js`
+- Windows: `C:\\Users\\Carol\\code\\harness-iacm-finops-agent\\build\\index.js` *(use doubled backslashes inside JSON)*
+
+> **Tip — Node not on `PATH`?** On Windows or with `nvm`, replace `"command": "node"` with the absolute path to the node binary, e.g. `/Users/alice/.nvm/versions/node/v20.18.0/bin/node` or `C:\\Program Files\\nodejs\\node.exe`. Don't use `~`, `$HOME`, or relative paths — MCP clients spawn the process from their own working directory and don't expand them.
 
 ---
 
@@ -180,7 +238,10 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
   "mcpServers": {
     "harness-iacm": {
       "command": "node",
-      "args": ["/absolute/path/to/harness-iacm-finops-agent/build/index.js", "stdio"],
+      "args": [
+        "/absolute/path/to/harness-iacm-finops-agent/build/index.js",
+        "stdio"
+      ],
       "env": {
         "HARNESS_API_KEY": "pat.xxxx.xxxx.xxxx"
       }
@@ -188,6 +249,8 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
   }
 }
 ```
+
+The same auth alternatives apply as for Cursor — swap in `HARNESS_BEARER_TOKEN` + `HARNESS_ACCOUNT_ID`, or `HARNESS_HEADER_COOKIE` + `HARNESS_ACCOUNT_ID`, depending on what you have. The `args[0]` absolute-path rule is identical across both clients.
 
 ---
 
@@ -464,6 +527,7 @@ npm run docker:run    # exposes :3000, reads .env
 - **Read-only mode**: set `HARNESS_READ_ONLY=true` and `harness_iacm_run` will refuse all `apply` / `destroy` / `plan_and_apply` requests.
 - **Rate limits**: outbound API calls are capped at `HARNESS_RATE_LIMIT_RPS` (default 10) and inbound HTTP at 60 req/min per IP.
 - **No telemetry**: this server does not phone home. All API traffic goes only to `HARNESS_BASE_URL`.
+- **Cookie auth is short-lived and broad-scope**: `HARNESS_HEADER_COOKIE` carries the same privileges as your live Harness UI session. It expires when your browser session does, can grant write access if your user has it, and should never be committed to git or shared. Prefer `HARNESS_API_KEY` (a scoped PAT/SA token) for any non-debug workflow.
 
 ---
 
