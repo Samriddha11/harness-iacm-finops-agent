@@ -19,7 +19,7 @@ function humanizeHttpError(status: number, rawBody: string): string {
 
   switch (status) {
     case 401:
-      return `HTTP 401 Unauthorized — invalid or expired credentials. Use HARNESS_API_KEY (PAT/SA token) or HARNESS_BEARER_TOKEN.${hint ? ` (${hint})` : ""}`;
+      return `HTTP 401 Unauthorized — invalid or expired credentials. Use HARNESS_API_KEY (PAT/SA token), HARNESS_BEARER_TOKEN, or HARNESS_HEADER_COOKIE.${hint ? ` (${hint})` : ""}`;
     case 403:
       return `HTTP 403 Forbidden — access denied. Check HARNESS_ACCOUNT_ID, RBAC permissions for IaCM module, and that the IaCM module is enabled.${hint ? ` (${hint})` : ""}`;
     case 404:
@@ -33,6 +33,7 @@ export class HarnessClient {
   private readonly baseUrl: string;
   private readonly apiKey: string | undefined;
   private readonly bearerToken: string | undefined;
+  private readonly headerCookie: string | undefined;
   private readonly accountId: string;
   private readonly timeout: number;
   private readonly maxRetries: number;
@@ -42,6 +43,7 @@ export class HarnessClient {
     this.baseUrl = config.HARNESS_BASE_URL.replace(/\/$/, "");
     this.apiKey = config.HARNESS_API_KEY;
     this.bearerToken = config.HARNESS_BEARER_TOKEN;
+    this.headerCookie = config.HARNESS_HEADER_COOKIE;
     this.accountId = config.HARNESS_ACCOUNT_ID;
     this.timeout = config.HARNESS_API_TIMEOUT_MS;
     this.maxRetries = config.HARNESS_MAX_RETRIES;
@@ -56,9 +58,10 @@ export class HarnessClient {
     return this.baseUrl;
   }
 
-  get authMethod(): "bearer" | "apiKey" | "none" {
-    if (this.bearerToken) return "bearer";
+  get authMethod(): "apiKey" | "bearer" | "cookie" | "none" {
     if (this.apiKey) return "apiKey";
+    if (this.bearerToken) return "bearer";
+    if (this.headerCookie) return "cookie";
     return "none";
   }
 
@@ -75,14 +78,17 @@ export class HarnessClient {
       ...options.headers,
     };
 
-    // Auth header selection: PAT/SA key preferred; fall back to bearer token.
+    // Auth header selection: PAT/SA key preferred; fall back to bearer token;
+    // last resort, send the raw browser-session Cookie header.
     if (this.apiKey) {
       headers["x-api-key"] = this.apiKey;
     } else if (this.bearerToken) {
       headers["Authorization"] = `Bearer ${this.bearerToken}`;
+    } else if (this.headerCookie) {
+      headers["Cookie"] = this.headerCookie;
     } else {
       throw new HarnessApiError(
-        "No Harness credentials available. Provide HARNESS_API_KEY or HARNESS_BEARER_TOKEN.",
+        "No Harness credentials available. Provide HARNESS_API_KEY, HARNESS_BEARER_TOKEN, or HARNESS_HEADER_COOKIE.",
         400,
       );
     }

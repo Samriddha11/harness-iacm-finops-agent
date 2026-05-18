@@ -7,7 +7,9 @@
         "stdio"
       ],
       "env": {
+        "HARNESS_API_KEY": "pat.<accountId>.<tokenId>.<secret>",
         "HARNESS_BEARER_TOKEN": "<YOUR_HARNESS_BEARER_TOKEN>",
+        "HARNESS_HEADER_COOKIE": "<RAW_COOKIE_HEADER_FROM_BROWSER>",
         "HARNESS_ACCOUNT_ID": "<YOUR_HARNESS_ACCOUNT_ID>",
         "HARNESS_BASE_URL": "https://app.harness.io/gateway",
         "HARNESS_DEFAULT_ORG_ID": "default",

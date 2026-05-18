@@ -23,6 +23,13 @@ const GlobalConfigSchema = z
     HARNESS_API_KEY: z.string().optional(),
     /** Bearer/session JWT. Overridable per-session via X-Harness-Token header. */
     HARNESS_BEARER_TOKEN: z.string().optional(),
+    /**
+     * Raw `Cookie:` header value (e.g. copied from browser DevTools while
+     * logged into the Harness UI). Used as a last-resort auth fallback when
+     * neither HARNESS_API_KEY nor HARNESS_BEARER_TOKEN is set. The full string
+     * is forwarded verbatim as the `Cookie` header on every outbound request.
+     */
+    HARNESS_HEADER_COOKIE: z.string().optional(),
     HARNESS_ACCOUNT_ID: z.string().optional(),
     HARNESS_BASE_URL: z.string().url().default("https://app.harness.io"),
     HARNESS_DEFAULT_ORG_ID: z.string().default("default"),
@@ -40,6 +47,7 @@ const GlobalConfigSchema = z
     ...data,
     HARNESS_API_KEY: data.HARNESS_API_KEY?.trim() || undefined,
     HARNESS_BEARER_TOKEN: data.HARNESS_BEARER_TOKEN?.trim() || undefined,
+    HARNESS_HEADER_COOKIE: data.HARNESS_HEADER_COOKIE?.trim() || undefined,
     HARNESS_ACCOUNT_ID: data.HARNESS_ACCOUNT_ID?.trim() || undefined,
   }));
 
@@ -51,6 +59,7 @@ export type GlobalConfig = z.infer<typeof GlobalConfigSchema>;
 export interface SessionAuthOverrides {
   HARNESS_API_KEY?: string;
   HARNESS_BEARER_TOKEN?: string;
+  HARNESS_HEADER_COOKIE?: string;
   HARNESS_ACCOUNT_ID?: string;
   HARNESS_BASE_URL?: string;
   HARNESS_DEFAULT_ORG_ID?: string;
@@ -65,6 +74,7 @@ export type Config = Omit<
   GlobalConfig,
   | "HARNESS_API_KEY"
   | "HARNESS_BEARER_TOKEN"
+  | "HARNESS_HEADER_COOKIE"
   | "HARNESS_ACCOUNT_ID"
   | "HARNESS_BASE_URL"
   | "HARNESS_DEFAULT_ORG_ID"
@@ -72,6 +82,7 @@ export type Config = Omit<
 > & {
   HARNESS_API_KEY?: string;
   HARNESS_BEARER_TOKEN?: string;
+  HARNESS_HEADER_COOKIE?: string;
   HARNESS_ACCOUNT_ID: string;
   HARNESS_BASE_URL: string;
   HARNESS_DEFAULT_ORG_ID: string;
@@ -116,6 +127,7 @@ export function buildSessionConfig(
 ): Config {
   const apiKey = clean(overrides.HARNESS_API_KEY) ?? global.HARNESS_API_KEY;
   const bearerToken = clean(overrides.HARNESS_BEARER_TOKEN) ?? global.HARNESS_BEARER_TOKEN;
+  const headerCookie = clean(overrides.HARNESS_HEADER_COOKIE) ?? global.HARNESS_HEADER_COOKIE;
   const baseUrl = clean(overrides.HARNESS_BASE_URL) ?? global.HARNESS_BASE_URL;
   const defaultOrgId = clean(overrides.HARNESS_DEFAULT_ORG_ID) ?? global.HARNESS_DEFAULT_ORG_ID;
   const defaultProjectId = clean(overrides.HARNESS_DEFAULT_PROJECT_ID) ?? global.HARNESS_DEFAULT_PROJECT_ID;
@@ -124,9 +136,9 @@ export function buildSessionConfig(
   const accountId = explicitAccountId ?? (apiKey ? extractAccountIdFromToken(apiKey) : undefined);
 
   const missing: string[] = [];
-  if (!apiKey && !bearerToken) {
+  if (!apiKey && !bearerToken && !headerCookie) {
     missing.push(
-      "auth (one of X-Harness-Token, X-Harness-Api-Key, or set HARNESS_BEARER_TOKEN/HARNESS_API_KEY in .env)",
+      "auth (one of X-Harness-Api-Key, X-Harness-Token, or X-Harness-Cookie; or set HARNESS_API_KEY / HARNESS_BEARER_TOKEN / HARNESS_HEADER_COOKIE in .env)",
     );
   }
   if (!accountId) {
@@ -145,6 +157,7 @@ export function buildSessionConfig(
   return {
     HARNESS_API_KEY: apiKey,
     HARNESS_BEARER_TOKEN: bearerToken,
+    HARNESS_HEADER_COOKIE: headerCookie,
     HARNESS_ACCOUNT_ID: accountId!,
     HARNESS_BASE_URL: baseUrl,
     HARNESS_DEFAULT_ORG_ID: defaultOrgId,
