@@ -1,0 +1,55 @@
+---
+description: Conventions for producing Harness IaCM Business Value Reviews — workspace counting, ground-truth validation, methodology disclosure
+alwaysApply: true
+---
+
+# Harness IaCM BVR — agent conventions
+
+These rules apply to any agent producing or modifying a Harness IaCM Business Value Review (BVR), maturity report, growth analysis, or any customer-facing deliverable in this repo.
+
+## Workspace counting — the only acceptable method
+
+The IaCM workspace listing endpoint silently caps each page at 30 items server-side regardless of the requested `pageSize`, and returns a bare JSON array with no `total` field. Naive single-page callers undercount any project with more than 30 workspaces — historically this hid 89% of the footprint on a real customer account.
+
+1. **Always use the shared helper** `listAllWorkspacesPaginated()` from `src/utils/iacm-pagination.ts` when listing workspaces in a project.
+2. **Never trust a single-page fetch** for any number that will go into a customer report.
+3. **Inspect the `_meta` block** on every scan output. `_meta.workspaceCountMethod` must be `paginated-exhaustive`. If it is anything else, the count is suspect.
+4. **Treat any project reporting a suspiciously round count (30, 50, 100, etc.) as a smoke alarm** — the server cap was hit. The bundled tools paginate past this; any agent-built one-off must too.
+
+## Ground-truth validation — mandatory before publishing
+
+Before writing any markdown, generating any chart, or rendering any PDF that will be sent to a customer:
+
+1. **Sum-and-reconcile.** Sum workspaces across orgs from the scan output → record as `A`. Compare to the IaCM dashboard total → record as `B`. If `|A - B| / B > 0.05`, **STOP** and reconcile before continuing. Common causes: timing drift during a migration ramp, or a dashboard filter the scan doesn't apply.
+2. **Inspect `_meta.projectsHittingWorkspaceCap`.** This is informational once the tools paginate (we walked past the cap), but it tells you which projects have ≥30 workspaces — useful colour for the report.
+3. **Inspect `_meta.unreachableProjectsForWorkspaces`.** These projects appear with workspace count `0` in the output, but that is not "no workspaces" — it is "we couldn't read them." Call this out explicitly in any report that lists them.
+4. **Pipelines are safe.** Pipeline counts come from the NG API's `data.totalElements` field which does not have the same bug — no special handling required.
+
+## Methodology disclosure
+
+Every customer-facing BVR markdown must include an **Appendix B — Methodology** section that names:
+
+- The MCP tool used for each top-line metric (workspaces, pipelines, OPA coverage, feature adoption, growth, maturity)
+- The `countMethod` from that tool's `_meta` (e.g. `paginated-exhaustive`, `totalElements`)
+- Any reconciliation step performed (e.g. "Reconciled to dashboard total of 3,435 — agreed within 2.4%")
+- The wall-clock time and timestamp of data collection
+
+If reconciliation could not be performed (no dashboard access, no independent count path), **say so explicitly** in the methodology section. Do not present unreconciled numbers as if they were validated.
+
+## Customer data hygiene
+
+The `reports/` folder is for working drafts only. Never commit a customer-named BVR (e.g. `reports/<customer>-bvr-*`) to a public repo without explicit approval. Use `reports/example/` with anonymised data for any artifact that ships in source control.
+
+## Tooling order for a new BVR
+
+1. `harness_iacm_guide` — refresh on tool capabilities and the BVR validation rules
+2. `harness_iacm_list resource_type=harness_org` — confirm auth and visible scope
+3. `harness_iacm_scan` — workspace + pipeline counts
+4. `harness_iacm_feature_scan` — Checkov / cost estimation / templates / private registry
+5. `harness_iacm_opa_scan` — policy sets and coverage
+6. `harness_iacm_growth months=12` — time-series
+7. `harness_iacm_maturity_assessment` — 9-dimension scoring
+8. **Reconcile** workspace totals to dashboard ±5% before any chart or markdown
+9. `harness_iacm_chart` — generate the standard 8 chart kinds
+10. Author markdown with **Appendix B** methodology disclosure
+11. `harness_iacm_render_report` and/or `markdown_to_pdf` to produce final artifacts

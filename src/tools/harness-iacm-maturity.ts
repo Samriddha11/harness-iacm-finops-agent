@@ -4,6 +4,7 @@ import type { HarnessClient } from "../client/harness-client.js";
 import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { toMcpError } from "../utils/errors.js";
 import { createLogger } from "../utils/logger.js";
+import { listAllWorkspacesPaginated } from "../utils/iacm-pagination.js";
 
 const log = createLogger("iacm-maturity");
 
@@ -328,23 +329,24 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
         let costEstAdopted = 0;
         let totalWorkspacesForCost = 0;
         let activeProjects = 0;
+        const projectsHittingWsCap: string[] = [];
+        const unreachableForWs: string[] = [];
 
         await Promise.all(projects.map(async (proj) => {
           const org = proj.orgIdentifier ?? "default";
 
-          // Workspaces
-          try {
-            const wsRaw = await client.request<unknown>({
-              path: `/iacm/api/orgs/${encodeURIComponent(org)}/projects/${encodeURIComponent(proj.identifier)}/workspaces`,
-              params: { accountIdentifier: client.account, routingId: client.account, page: 1, pageSize: 200 },
-              signal,
-            });
-            const workspaces: Array<Record<string, unknown>> = Array.isArray(wsRaw) ? wsRaw : [];
-            if (workspaces.length > 0) activeProjects++;
-            totalWorkspaces += workspaces.length;
-            totalWorkspacesForCost += workspaces.length;
-            costEstAdopted += workspaces.filter((w) => w.cost_estimation_enabled === true).length;
-          } catch { /* skip */ }
+          // Workspaces — paginated to exhaustion via shared helper
+          // (the IaCM workspace endpoint silently caps at 30 items per page).
+          const wsResult = await listAllWorkspacesPaginated<Record<string, unknown>>(
+            client, org, proj.identifier, signal,
+          );
+          const workspaces = wsResult.items;
+          if (wsResult.capDetected) projectsHittingWsCap.push(`${org}/${proj.identifier}`);
+          if (wsResult.unreachable) unreachableForWs.push(`${org}/${proj.identifier}`);
+          if (workspaces.length > 0) activeProjects++;
+          totalWorkspaces += workspaces.length;
+          totalWorkspacesForCost += workspaces.length;
+          costEstAdopted += workspaces.filter((w) => w.cost_estimation_enabled === true).length;
 
           // Pipelines
           try {
@@ -486,7 +488,18 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
           },
         };
 
-        return jsonResult({ assessment: result, bvr, scannedAt: new Date().toISOString() });
+        const audit = {
+          workspaceCountMethod: "paginated-exhaustive",
+          pipelineCountMethod: "totalElements",
+          projectsHittingWorkspaceCap: projectsHittingWsCap,
+          unreachableProjectsForWorkspaces: unreachableForWs,
+          guidance:
+            "Workspace counts (and the cost-estimation adoption denominator) were computed by " +
+            "paginating each project's workspace list to exhaustion. Cross-validate top-line " +
+            "totals with the IaCM dashboard for high-stakes deliverables — agree to ±5%.",
+        };
+
+        return jsonResult({ assessment: result, bvr, scannedAt: new Date().toISOString(), _meta: audit });
       } catch (err) {
         throw toMcpError(err);
       }

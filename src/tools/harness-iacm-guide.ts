@@ -172,6 +172,31 @@ Count only workspaces:
 
 The correct default is set automatically — you don't need to specify page unless paginating.
 
+### Workspace endpoint quirk — known footgun
+
+The IaCM workspace listing endpoint \`GET /iacm/api/orgs/{org}/projects/{project}/workspaces\` **silently caps each page at 30 items server-side regardless of the requested \`pageSize\`**, and returns a bare JSON array with no \`total\` / \`hasMore\` field. Naive callers that fetch only page 1 silently undercount any project with more than 30 workspaces.
+
+The bundled tools (\`harness_iacm_scan\`, \`harness_iacm_feature_scan\`, \`harness_iacm_growth\`, \`harness_iacm_maturity_assessment\`) already paginate to exhaustion via the shared helper in \`src/utils/iacm-pagination.ts\`. Each scan output includes an \`_meta.workspaceCountMethod\` field (\`paginated-exhaustive\` for trustworthy counts) and a \`_meta.projectsHittingWorkspaceCap\` array listing projects where the 30-item cap was observed.
+
+**If you build a new tool that lists workspaces, use \`listAllWorkspacesPaginated()\` from \`src/utils/iacm-pagination.ts\`. Do not write a fresh page-1-only fetch.**
+
+---
+
+## BVR ground-truth validation — mandatory before publishing customer-facing reports
+
+Always run these checks **before** writing any markdown, generating any chart, or rendering any PDF that will go to a customer:
+
+1. **Check \`_meta\` on every scan output.** \`harness_iacm_scan\`, \`harness_iacm_feature_scan\`, \`harness_iacm_growth\`, and \`harness_iacm_maturity_assessment\` all emit:
+   - \`_meta.workspaceCountMethod\` — must be \`paginated-exhaustive\` for any number that goes into a customer report.
+   - \`_meta.projectsHittingWorkspaceCap\` — projects where the server cap was observed; not a problem on its own (we paginated past it) but a signal that those projects have ≥30 workspaces.
+   - \`_meta.unreachableProjectsForWorkspaces\` — projects whose workspace list could not be read; their workspace counts are \`0\` in the output, **not** "unknown" — flag them as such in the report.
+2. **Reconcile to the dashboard.** The IaCM dashboard at \`/iacm/orgs?dashboard\` is authoritative. Sum workspaces across orgs from the scan output and compare to the dashboard total — if they disagree by more than **±5%**, **stop and reconcile** before continuing. Common causes: scan ran during high-velocity adoption (timing drift), or the dashboard filters out a status the scan doesn't.
+3. **Suspect any project with workspaceCount equal to a round-number cap.** If multiple projects in the scan all return the same suspiciously round number (e.g. 30, 50, 100), the page cap was hit and historical scans may be undercounted. The current tools paginate past this; any agent-built one-off API call must as well.
+4. **State the source of every top-line metric.** In any customer-facing BVR, include a methodology section (\"Appendix B\") naming the tool that produced each metric and its \`countMethod\`.
+5. **Pipelines come from \`data.totalElements\` (NG API).** Pipeline counts use a fundamentally different mechanism than workspace counts — they are not subject to the same bug.
+
+If any of (1)–(4) fails, **do not publish.** Report the discrepancy back to the user and ask for guidance.
+
 ---
 
 ## Execution Status Values

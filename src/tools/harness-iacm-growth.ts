@@ -4,6 +4,7 @@ import type { HarnessClient } from "../client/harness-client.js";
 import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { toMcpError } from "../utils/errors.js";
 import { createLogger } from "../utils/logger.js";
+import { listAllWorkspacesPaginated } from "../utils/iacm-pagination.js";
 
 const log = createLogger("iacm-growth");
 
@@ -130,37 +131,19 @@ async function fetchAllIacmProjects(
   return all;
 }
 
-/** List every workspace in a project, paginating until exhausted. */
+/**
+ * List every workspace in a project. Delegates to the shared pagination
+ * helper, which knows that the IaCM workspace endpoint silently caps each
+ * page at 30 items server-side regardless of the requested `pageSize`.
+ */
 async function listAllWorkspaces(
   client: HarnessClient,
   org: string,
   project: string,
   signal: AbortSignal,
-): Promise<WorkspaceItem[]> {
-  const pageSize = 100;
-  let page = 1; // IaCM workspace API is 1-based
-  const out: WorkspaceItem[] = [];
-  while (true) {
-    try {
-      const raw = await client.request<unknown>({
-        path: `/iacm/api/orgs/${encodeURIComponent(org)}/projects/${encodeURIComponent(project)}/workspaces`,
-        params: { accountIdentifier: client.account, routingId: client.account, page, pageSize },
-        signal,
-      });
-      const arr: WorkspaceItem[] = Array.isArray(raw)
-        ? (raw as WorkspaceItem[])
-        : Array.isArray((raw as { workspaces?: WorkspaceItem[] })?.workspaces)
-          ? (raw as { workspaces: WorkspaceItem[] }).workspaces
-          : [];
-      out.push(...arr);
-      if (arr.length < pageSize) break;
-      page++;
-    } catch (err) {
-      log.warn("workspace list failed", { org, project, err: String(err) });
-      break;
-    }
-  }
-  return out;
+): Promise<{ items: WorkspaceItem[]; capDetected: boolean; unreachable: boolean }> {
+  const r = await listAllWorkspacesPaginated<WorkspaceItem>(client, org, project, signal);
+  return { items: r.items, capDetected: r.capDetected, unreachable: r.unreachable };
 }
 
 /** List every IaCM pipeline in a project, paginating until exhausted. */
@@ -285,11 +268,18 @@ export function registerGrowthTool(server: McpServer, client: HarnessClient): vo
         // Fetch every workspace and pipeline in parallel (per project)
         const perProject = await mapWithConcurrency(projects, concurrency, async (p) => {
           const org = p.orgIdentifier ?? "default";
-          const [ws, pl] = await Promise.all([
+          const [wsResult, pl] = await Promise.all([
             listAllWorkspaces(client, org, p.identifier, signal),
             listAllPipelines(client, org, p.identifier, signal),
           ]);
-          return { org, project: p.identifier, ws, pl };
+          return {
+            org,
+            project: p.identifier,
+            ws: wsResult.items,
+            wsCapDetected: wsResult.capDetected,
+            wsUnreachable: wsResult.unreachable,
+            pl,
+          };
         });
 
         // Flatten + extract creation timestamps
@@ -297,9 +287,13 @@ export function registerGrowthTool(server: McpServer, client: HarnessClient): vo
         const allPlCreated: number[] = [];
         let totalWs = 0, totalPl = 0;
         let wsMissing = 0, plMissing = 0;
+        const projectsHittingWsCap: string[] = [];
+        const unreachableForWs: string[] = [];
         for (const r of perProject) {
           totalWs += r.ws.length;
           totalPl += r.pl.length;
+          if (r.wsCapDetected) projectsHittingWsCap.push(`${r.org}/${r.project}`);
+          if (r.wsUnreachable) unreachableForWs.push(`${r.org}/${r.project}`);
           for (const w of r.ws) {
             const t = pickCreatedMs(w as unknown as Record<string, unknown>);
             if (t !== undefined) allWsCreated.push(t); else wsMissing++;
@@ -382,7 +376,17 @@ export function registerGrowthTool(server: McpServer, client: HarnessClient): vo
           },
         };
 
-        return jsonResult({ summary, monthly, growth });
+        const audit = {
+          workspaceCountMethod: "paginated-exhaustive",
+          pipelineCountMethod: "totalElements",
+          projectsHittingWorkspaceCap: projectsHittingWsCap,
+          unreachableProjectsForWorkspaces: unreachableForWs,
+          guidance:
+            "Workspace lists were paginated to exhaustion; cumulative counts on the time-series " +
+            "are accurate. Cross-validate with the IaCM dashboard for high-stakes deliverables.",
+        };
+
+        return jsonResult({ summary, monthly, growth, _meta: audit });
       } catch (err) {
         if (err instanceof Error && err.message.includes("resource_type")) {
           return errorResult(err.message);
