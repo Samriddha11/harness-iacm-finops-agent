@@ -22,17 +22,51 @@ export interface ScorecardData {
   title?: string;
 }
 
+/** Word-wrap subtext to fit inside a scorecard tile (SVG has no auto line-break). */
+function scorecardSubLines(sub: string, tileWidth: number, fontSize = 9): string[] {
+  const inner = Math.max(48, tileWidth - 20);
+  const maxChars = Math.max(8, Math.floor(inner / (fontSize * 0.55)));
+  return wrap(sub, maxChars);
+}
+
+function scorecardSubSvg(
+  cx: number,
+  y0: number,
+  lines: string[],
+  fontSize = 9,
+  lineH = 12,
+): string {
+  if (lines.length === 0) return "";
+  const tspans = lines
+    .map((line, i) => `<tspan x="${cx}" dy="${i === 0 ? 0 : lineH}">${esc(line)}</tspan>`)
+    .join("");
+  return `<text x="${cx}" y="${y0}" text-anchor="middle"
+    font-size="${fontSize}" fill="${P.muted}" font-family="${F}">${tspans}</text>`;
+}
+
 export function scorecard(d: ScorecardData): string {
   const tiles = d.tiles.slice(0, 6);
   const W = 720;
   const PAD_X = 16;
   const TITLE_H = d.title ? 36 : 0;
-  const tH = 168;
   const tY = TITLE_H + 16;
-  const H = tY + tH + 16;
   const tW = (W - PAD_X * 2 - (tiles.length - 1) * 12) / tiles.length;
+  const SUB_FS = 9;
+  const SUB_LH = 12;
 
   const COLS = [P.primary, P.quaternary, P.success, P.secondary, P.tertiary, P.warning];
+
+  const tileMeta = tiles.map((t, i) => ({
+    tile: t,
+    x: PAD_X + i * (tW + 12),
+    col: COLS[i % COLS.length]!,
+    subLines: t.sub ? scorecardSubLines(t.sub, tW, SUB_FS) : [],
+  }));
+
+  const maxSubLines = Math.max(1, ...tileMeta.map((m) => m.subLines.length));
+  const extraSubH = Math.max(0, (maxSubLines - 1) * SUB_LH);
+  const tH = 168 + extraSubH;
+  const H = tY + tH + 16;
 
   const titleEl = d.title
     ? `<text x="${W / 2}" y="22" text-anchor="middle"
@@ -40,24 +74,34 @@ export function scorecard(d: ScorecardData): string {
          font-family="${F}">${esc(d.title)}</text>`
     : "";
 
-  const tileEls = tiles.map((t, i) => {
-    const x = PAD_X + i * (tW + 12);
-    const col = COLS[i % COLS.length];
-    return `
-      <rect x="${x}" y="${tY}" width="${tW}" height="${tH}" rx="10" fill="${P.card}" stroke="${P.grid}" stroke-width="1"/>
-      <rect x="${x}" y="${tY}" width="${tW}" height="4" rx="2" fill="${col}"/>
-      <text x="${x + tW / 2}" y="${tY + 60}" text-anchor="middle"
-        font-size="24" font-weight="700" fill="${P.textDeep}" letter-spacing="-0.02em"
-        font-family="${FN}">${esc(t.value)}</text>
-      <text x="${x + tW / 2}" y="${tY + 86}" text-anchor="middle"
-        font-size="11" font-weight="700" fill="${col}" letter-spacing="0.04em"
-        font-family="${F}">${esc(t.label)}</text>
-      ${t.sub ? `<text x="${x + tW / 2}" y="${tY + 106}" text-anchor="middle"
-        font-size="9" fill="${P.muted}" font-family="${F}">${esc(t.sub)}</text>` : ""}
-    `;
-  }).join("");
+  const clipDefs = tileMeta
+    .map(
+      (m, i) =>
+        `<clipPath id="scorecard-tile-${i}"><rect x="${m.x}" y="${tY}" width="${tW}" height="${tH}" rx="10"/></clipPath>`,
+    )
+    .join("");
+
+  const tileEls = tileMeta
+    .map((m, i) => {
+      const cx = m.x + tW / 2;
+      const subY = tY + 106;
+      return `
+      <g clip-path="url(#scorecard-tile-${i})">
+        <rect x="${m.x}" y="${tY}" width="${tW}" height="${tH}" rx="10" fill="${P.card}" stroke="${P.grid}" stroke-width="1"/>
+        <rect x="${m.x}" y="${tY}" width="${tW}" height="4" rx="2" fill="${m.col}"/>
+        <text x="${cx}" y="${tY + 60}" text-anchor="middle"
+          font-size="24" font-weight="700" fill="${P.textDeep}" letter-spacing="-0.02em"
+          font-family="${FN}">${esc(m.tile.value)}</text>
+        <text x="${cx}" y="${tY + 86}" text-anchor="middle"
+          font-size="11" font-weight="700" fill="${m.col}" letter-spacing="0.04em"
+          font-family="${F}">${esc(m.tile.label)}</text>
+        ${scorecardSubSvg(cx, subY, m.subLines, SUB_FS, SUB_LH)}
+      </g>`;
+    })
+    .join("");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>${clipDefs}</defs>
     <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
     ${titleEl}${tileEls}
   </svg>`;
