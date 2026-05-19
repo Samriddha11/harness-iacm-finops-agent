@@ -1,8 +1,14 @@
 # IaCM BVR — saved prompt template
 
-Copy-paste this into a Cursor / Claude Desktop chat to produce a tool-validated IaCM Business Value Review.
+Copy-paste this into a Cursor / Claude Desktop chat to produce a tool-validated, structurally-consistent IaCM Business Value Review.
 
-The prompt is designed as a **convenience layer on top of the tool-side validation**. The real safety guarantees are baked into the MCP tools (paginated workspace counting, `_meta.workspaceCountMethod`) and into `harness_iacm_guide` (which encodes the validation checklist). This prompt just nudges the agent to actually run the checklist instead of skipping it.
+This is a **convenience layer on top of three tool-side guarantees**:
+
+1. The MCP **`iacm_bvr` prompt** at `src/prompts/iacm-bvr.ts` is the single authoritative recipe — fixed section structure, fixed chart placement, fixed callout vocabulary, fixed frontmatter contract.
+2. The MCP tools paginate workspace counts and emit `_meta.workspaceCountMethod` so undercounts are detectable.
+3. `harness_iacm_guide` and `.cursor/rules/iacm-bvr.mdc` encode the validation discipline.
+
+The prompt below just nudges the agent to actually invoke the canonical recipe instead of reinventing the structure.
 
 ---
 
@@ -11,11 +17,33 @@ The prompt is designed as a **convenience layer on top of the tool-side validati
 ```
 Produce an IaCM Business Value Review for the currently authenticated Harness account.
 
-Required workflow (do not skip steps):
+Required workflow (do not skip steps, do not invent structure):
 
-1. Call harness_iacm_guide first. Follow its "BVR ground-truth validation" rules.
+1. Call harness_iacm_guide first. Follow its "BVR ground-truth validation"
+   rules and its canonical structure section.
 
-2. Account inventory in this order:
+2. Invoke the iacm_bvr MCP prompt with:
+     customer_name: <the actual customer name on the cover>
+     workspace_root: <the absolute path to my workspace root>
+     theme: minimal      (or whichever theme I asked for)
+   This pulls in the canonical 6-section recipe with exact section headings,
+   chart shapes, callout vocabulary, and frontmatter contract. The output
+   MUST follow this structure verbatim:
+
+     Frontmatter (title, customer, date, defaultTheme, heroStats)
+     Executive Summary                       [scorecard]
+     1. Enterprise Footprint                 [org_footprint + monthly_growth]
+     2. Maturity Assessment — <tier> Tier    [maturity_radar + dimension table]
+     3. Feature Adoption                     [feature_gauges]
+     4. OPA Governance                       [opa_donut]
+     5. Recommended Actions                  [priority_matrix]
+     6. Before & After                       [pain/gain comparison table]
+     Appendix — Organisation Summary
+
+   Do not add, remove, rename, or reorder sections. Do not invent new
+   ::: directive types — only success, critical, warning, info, action, quote.
+
+3. Account inventory in this order:
    - harness_iacm_list resource_type=harness_org
    - harness_iacm_scan
    - harness_iacm_feature_scan
@@ -23,7 +51,7 @@ Required workflow (do not skip steps):
    - harness_iacm_growth months=12
    - harness_iacm_maturity_assessment
 
-3. Validation gate — before producing any chart, markdown, or PDF:
+4. Validation gate — before producing any chart, markdown, or PDF:
    - Confirm every scan's _meta.workspaceCountMethod == "paginated-exhaustive".
    - Sum workspaces across orgs from harness_iacm_scan and reconcile to the
      IaCM dashboard total. If they disagree by more than 5%, STOP and report
@@ -31,34 +59,30 @@ Required workflow (do not skip steps):
      generation until the totals are reconciled.
    - List any projects in _meta.projectsHittingWorkspaceCap (informational —
      these have >=30 workspaces, useful colour for the narrative).
-   - List any projects in _meta.unreachableProjectsForWorkspaces and explicitly
-     flag them in the report's methodology appendix.
+   - List any projects in _meta.unreachableProjectsForWorkspaces and
+     explicitly flag them in the Appendix.
 
-4. Charts — generate all eight canonical kinds via harness_iacm_chart:
-   scorecard, maturity_radar, feature_gauges, opa_donut, org_footprint,
-   priority_matrix, monthly_growth, plus a bar chart of the top 10 projects
-   by workspace count.
+5. Charts — embed inline chart fences inside the markdown
+   (```chart <kind> ... ```) following the data shapes defined in the
+   iacm_bvr prompt. Do not pre-render SVG files unless I explicitly ask.
 
-5. Markdown narrative — frontmatter, executive summary with scorecard, account
-   at a glance, maturity radar, feature gauges, OPA donut, growth section, org
-   footprint, priority matrix, strategic narrative, and:
-   - Appendix A — Top 15 orgs by workspace count
-   - Appendix B — Methodology with countMethod for each metric, the
-     reconciliation result, and the wall-clock time of data collection
+6. Markdown — save to reports/<short-customer-tag>-bvr-<YYYY-MM-DD>/iacm-bvr.md
+   in my workspace_root. Use the canonical 6-section structure (see Step 2).
 
-6. Render — harness_iacm_render_report (live HTML, theme switcher) AND
+7. Render — harness_iacm_render_report (live HTML, theme switcher) AND
    harness_iacm_markdown_to_pdf (offline PDF) — return both URLs/paths.
 
 Customer data hygiene:
-- Save artifacts to reports/<short-customer-tag>-bvr-<YYYY-MM-DD>/.
-- Do not commit the report folder to git unless I explicitly say so.
-- Use absolute paths for chart output_path (the MCP server runs in a
+- reports/* is gitignored by default. Do not commit the report folder
+  unless I explicitly say so.
+- Use absolute paths for any chart output_path (the MCP server runs in a
   different cwd than my workspace).
 
-Anti-patterns to refuse:
-- Publishing a BVR with unaudited counts.
+Anti-patterns — refuse if asked:
+- Inventing new top-level sections beyond the canonical 6.
+- Renaming "Recommended Actions" to "Path to <Tier>" or similar.
 - Single-page workspace fetches outside the bundled tools.
-- "Plausibility" judgements about totals — always reconcile to the dashboard.
+- Publishing a BVR with unaudited counts or unreconciled totals.
 - Customer-named reports committed to the public repo.
 ```
 
@@ -72,6 +96,17 @@ In Cursor:
 - Send it
 
 In Claude Desktop / any MCP client:
-- Same as above; the tool calls will run identically because the tool surface and the guide are the same
+- Same. The tool calls and the canonical `iacm_bvr` MCP prompt run identically because both live in the MCP server, not in the prompt text.
 
 If you want a one-line trigger, save this as a Cursor Custom Command (Settings → Custom Commands → Add) and assign it to a slash like `/iacm-bvr`.
+
+## Why this is a thin layer
+
+The structural guarantees do not live in this file. They live in:
+
+1. `src/prompts/iacm-bvr.ts` — the authoritative `iacm_bvr` MCP prompt with section headings, chart shapes, callout vocabulary
+2. `.cursor/rules/iacm-bvr.mdc` — auto-injected project rule
+3. `src/tools/harness-iacm-guide.ts` — the agent guide every session reads first
+4. `src/utils/iacm-pagination.ts` — the workspace counting helper that prevents under-reports
+
+This file is a copy-paste convenience and the **weakest** of the four layers. If a user pastes a different prompt, the other three layers must still produce a structurally consistent BVR.

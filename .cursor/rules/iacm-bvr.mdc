@@ -1,11 +1,49 @@
 ---
-description: Conventions for producing Harness IaCM Business Value Reviews — workspace counting, ground-truth validation, methodology disclosure
+description: Conventions for producing Harness IaCM Business Value Reviews — canonical structure, workspace counting, ground-truth validation, methodology disclosure
 alwaysApply: true
 ---
 
 # Harness IaCM BVR — agent conventions
 
-These rules apply to any agent producing or modifying a Harness IaCM Business Value Review (BVR), maturity report, growth analysis, or any customer-facing deliverable in this repo.
+These rules apply to any agent producing or modifying a Harness IaCM Business Value Review (BVR), maturity report, growth analysis, or any customer-facing IaCM deliverable in this repo.
+
+## Canonical structure — every BVR follows the same skeleton
+
+Every BVR must use the **identical section ordering, naming, and chart placement** so any agent in any session produces a recognisable, brand-consistent deliverable. This is non-negotiable for customer-facing reports — inconsistency between BVRs across customers is a credibility problem, not a stylistic one.
+
+The authoritative recipe is the `iacm_bvr` MCP prompt at `src/prompts/iacm-bvr.ts`. **Always invoke that prompt** at the start of any BVR work; it returns the full instructions, chart data shapes, callout vocabulary, and frontmatter contract. Do not paraphrase from memory or invent your own section names.
+
+The fixed top-level structure is:
+
+```
+Frontmatter (title, customer, date, defaultTheme, heroStats)
+Executive Summary                          [scorecard chart]
+1. Enterprise Footprint                    [org_footprint + monthly_growth]
+2. Maturity Assessment — <tier> Tier       [maturity_radar + dimension table]
+3. Feature Adoption                        [feature_gauges]
+4. OPA Governance                          [opa_donut]
+5. Recommended Actions                     [priority_matrix]
+6. Before & After                          [pain/gain comparison table]
+Appendix — Organisation Summary            [per-org table]
+Footer line: "Harness IaCM · BVR · <date> · <customer> · Confidential"
+```
+
+**No new top-level sections. No reordering. No renaming.** If a section has no data (rare — typically only "monthly_growth" if the customer opted out of growth data), keep the heading and replace the chart with a one-line note.
+
+## Callout vocabulary — fixed, not freestyle
+
+The renderer maps `:::` directives to specific colours. Use these exact types and only these:
+
+| Directive | When to use |
+|---|---|
+| `::: success` | Strengths, "you're already doing X well" |
+| `::: critical` | Largest gap or risk |
+| `::: warning` | Secondary risk |
+| `::: info` | Neutral context, "path to" statements |
+| `::: action` | Recommended next steps (P1 / P2 / P3) |
+| `::: quote` | Customer-facing quote / sales narrative |
+
+Do not invent new directive names — they will render as plain text and look broken.
 
 ## Workspace counting — the only acceptable method
 
@@ -27,29 +65,35 @@ Before writing any markdown, generating any chart, or rendering any PDF that wil
 
 ## Methodology disclosure
 
-Every customer-facing BVR markdown must include an **Appendix B — Methodology** section that names:
+Every customer-facing BVR must include the **Appendix — Organisation Summary** (per-org table with workspaces and pipelines). If the engagement requires methodology transparency (vendor reviews, audits, regulated industries), add a brief footnote under the appendix naming:
 
 - The MCP tool used for each top-line metric (workspaces, pipelines, OPA coverage, feature adoption, growth, maturity)
 - The `countMethod` from that tool's `_meta` (e.g. `paginated-exhaustive`, `totalElements`)
 - Any reconciliation step performed (e.g. "Reconciled to dashboard total of 3,435 — agreed within 2.4%")
-- The wall-clock time and timestamp of data collection
 
-If reconciliation could not be performed (no dashboard access, no independent count path), **say so explicitly** in the methodology section. Do not present unreconciled numbers as if they were validated.
+If reconciliation could not be performed (no dashboard access, no independent count path), **say so explicitly**. Do not present unreconciled numbers as if they were validated.
+
+## Chart and asset rules
+
+1. **Inline chart fences are the default.** Embed JSON directly in the markdown with ` ```chart <kind> ` — the renderer parses, validates via the same Zod schema as `harness_iacm_chart`, and inlines the SVG at that location. No `harness_iacm_chart` calls, no SVG files on disk, no regen step.
+2. **Strict JSON inside chart fences.** Double-quoted keys, no trailing commas, no comments, no JS expressions.
+3. **Never** use `harness_ccm_finops_chart` for IaCM data — only the IaCM chart kinds match the report theme.
+4. **Every** number must come from a real tool response — no placeholders.
 
 ## Customer data hygiene
 
-The `reports/` folder is for working drafts only. Never commit a customer-named BVR (e.g. `reports/<customer>-bvr-*`) to a public repo without explicit approval. Use `reports/example/` with anonymised data for any artifact that ships in source control.
+The `reports/` folder is gitignored by default (`reports/*` excluded, `reports/example/` opt-in). Never commit a customer-named BVR. Use `reports/example/` with anonymised data for any artifact that ships in source control.
 
 ## Tooling order for a new BVR
 
 1. `harness_iacm_guide` — refresh on tool capabilities and the BVR validation rules
-2. `harness_iacm_list resource_type=harness_org` — confirm auth and visible scope
-3. `harness_iacm_scan` — workspace + pipeline counts
-4. `harness_iacm_feature_scan` — Checkov / cost estimation / templates / private registry
-5. `harness_iacm_opa_scan` — policy sets and coverage
-6. `harness_iacm_growth months=12` — time-series
-7. `harness_iacm_maturity_assessment` — 9-dimension scoring
-8. **Reconcile** workspace totals to dashboard ±5% before any chart or markdown
-9. `harness_iacm_chart` — generate the standard 8 chart kinds
-10. Author markdown with **Appendix B** methodology disclosure
+2. `iacm_bvr` MCP **prompt** — pulls in the canonical BVR recipe with the exact section structure, chart shapes, callout vocabulary, and frontmatter contract for this customer engagement
+3. `harness_iacm_list resource_type=harness_org` — confirm auth and visible scope
+4. `harness_iacm_scan` — workspace + pipeline counts (verify `_meta.workspaceCountMethod == "paginated-exhaustive"`)
+5. `harness_iacm_feature_scan` — Checkov / cost estimation / templates / private registry
+6. `harness_iacm_opa_scan` — policy sets and coverage
+7. `harness_iacm_growth months=12` — time-series
+8. `harness_iacm_maturity_assessment` — 9-dimension scoring
+9. **Reconcile** workspace totals to dashboard ±5% before any chart or markdown
+10. Write markdown using the canonical structure (see top of this rule)
 11. `harness_iacm_render_report` and/or `markdown_to_pdf` to produce final artifacts

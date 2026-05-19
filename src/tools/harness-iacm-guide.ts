@@ -182,6 +182,30 @@ The bundled tools (\`harness_iacm_scan\`, \`harness_iacm_feature_scan\`, \`harne
 
 ---
 
+## BVR canonical structure — mandatory for every customer-facing report
+
+Every IaCM Business Value Review must follow the **identical section ordering and naming** so reports stay recognisable across customers and across agent sessions. The authoritative recipe is the **\`iacm_bvr\` MCP prompt** — invoke it first whenever you start a BVR. It returns the full instructions, chart data shapes, callout vocabulary, and frontmatter contract.
+
+The fixed top-level structure is:
+
+\`\`\`
+Frontmatter (title, customer, date, defaultTheme, heroStats)
+Executive Summary                          [scorecard chart]
+1. Enterprise Footprint                    [org_footprint + monthly_growth]
+2. Maturity Assessment — <tier> Tier       [maturity_radar + dimension table]
+3. Feature Adoption                        [feature_gauges]
+4. OPA Governance                          [opa_donut]
+5. Recommended Actions                     [priority_matrix]
+6. Before & After                          [pain/gain comparison table]
+Appendix — Organisation Summary            [per-org table]
+\`\`\`
+
+**Do not** add new top-level sections, reorder them, or rename them. **Do not** invent new \`:::\` directive types — use only \`success\`, \`critical\`, \`warning\`, \`info\`, \`action\`, \`quote\`. If a section has no data (rare — typically only the growth chart if growth data isn't available), keep the heading and replace the chart with a one-line note explaining why.
+
+This rule exists because past BVRs invented headings like "Where customer X stands on the maturity curve", "Path to RUN tier", "Strategic narrative for the call" — readable in isolation, but they break recognition when comparing two customer BVRs side-by-side. Stay on the template; it is intentionally boring and that is its value.
+
+---
+
 ## BVR ground-truth validation — mandatory before publishing customer-facing reports
 
 Always run these checks **before** writing any markdown, generating any chart, or rendering any PDF that will go to a customer:
