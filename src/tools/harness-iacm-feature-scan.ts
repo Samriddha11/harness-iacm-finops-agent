@@ -4,6 +4,7 @@ import type { HarnessClient } from "../client/harness-client.js";
 import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { toMcpError } from "../utils/errors.js";
 import { createLogger } from "../utils/logger.js";
+import { listAllWorkspacesPaginated } from "../utils/iacm-pagination.js";
 
 const log = createLogger("iacm-feature-scan");
 
@@ -244,25 +245,11 @@ async function fetchAllWorkspaces(
   org: string,
   project: string,
   signal: AbortSignal,
-): Promise<Array<Record<string, unknown>>> {
-  try {
-    const raw = await client.request<unknown>({
-      path: `/iacm/api/orgs/${encodeURIComponent(org)}/projects/${encodeURIComponent(project)}/workspaces`,
-      params: {
-        accountIdentifier: client.account,
-        routingId: client.account,
-        page: 1,
-        pageSize: 200,
-      },
-      signal,
-    });
-    if (Array.isArray(raw)) return raw as Array<Record<string, unknown>>;
-    const r = raw as Record<string, unknown>;
-    if (Array.isArray(r.workspaces)) return r.workspaces as Array<Record<string, unknown>>;
-    return [];
-  } catch {
-    return [];
-  }
+): Promise<{ items: Array<Record<string, unknown>>; capDetected: boolean; unreachable: boolean }> {
+  // Walks every page of the workspace list — see src/utils/iacm-pagination.ts.
+  // The endpoint silently caps at 30 items per page; never trust a single page.
+  const r = await listAllWorkspacesPaginated<Record<string, unknown>>(client, org, project, signal);
+  return { items: r.items, capDetected: r.capDetected, unreachable: r.unreachable };
 }
 
 // ── Main tool ──────────────────────────────────────────────────────────────
@@ -333,6 +320,8 @@ export function registerFeatureScanTool(server: McpServer, client: HarnessClient
 
         let totalPipelines = 0;
         let totalWorkspaces = 0;
+        const projectsHittingWsCap: string[] = [];
+        const unreachableForWs: string[] = [];
 
         const projectRefs: ProjectRef[] = projects.map((p) => ({
           org: p.orgIdentifier ?? "default",
@@ -367,8 +356,11 @@ export function registerFeatureScanTool(server: McpServer, client: HarnessClient
             }));
 
             // ── Workspaces: detect cost estimation and module registry ──────
-            const workspaces = await fetchAllWorkspaces(client, org, project, signal);
+            const wsResult = await fetchAllWorkspaces(client, org, project, signal);
+            const workspaces = wsResult.items;
             totalWorkspaces += workspaces.length;
+            if (wsResult.capDetected) projectsHittingWsCap.push(`${org}/${project}`);
+            if (wsResult.unreachable) unreachableForWs.push(`${org}/${project}`);
 
             for (const ws of workspaces) {
               const wref: WorkspaceRef = {
@@ -483,7 +475,18 @@ export function registerFeatureScanTool(server: McpServer, client: HarnessClient
           },
         };
 
-        return jsonResult(bvrSummary);
+        const audit = {
+          workspaceCountMethod: "paginated-exhaustive",
+          pipelineCountMethod: "totalElements",
+          projectsHittingWorkspaceCap: projectsHittingWsCap,
+          unreachableProjectsForWorkspaces: unreachableForWs,
+          guidance:
+            "Workspace lists were paginated to exhaustion. Cross-validate top-line workspace " +
+            "totals (and cost-estimation / private-registry adoption denominators) with the IaCM " +
+            "dashboard for high-stakes deliverables — agree to ±5%.",
+        };
+
+        return jsonResult({ ...bvrSummary, _meta: audit });
       } catch (err) {
         throw toMcpError(err);
       }

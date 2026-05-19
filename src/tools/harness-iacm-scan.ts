@@ -4,6 +4,7 @@ import type { HarnessClient } from "../client/harness-client.js";
 import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { toMcpError } from "../utils/errors.js";
 import { createLogger } from "../utils/logger.js";
+import { countAllWorkspacesPaginated } from "../utils/iacm-pagination.js";
 
 const log = createLogger("iacm-scan");
 
@@ -101,6 +102,7 @@ async function fetchCount(
   }
 }
 
+
 // ── Per-project data ───────────────────────────────────────────────────────
 
 interface ProjectResult {
@@ -108,6 +110,8 @@ interface ProjectResult {
   project: string;
   projectName: string;
   workspaceCount: number;
+  workspaceCountMethod: "paginated-exhaustive" | "unreachable" | "skipped";
+  workspaceCapDetected: boolean;
   pipelineCount: number;
   executionCount: number;
   reachable: boolean;
@@ -126,6 +130,8 @@ async function scanProject(
     project: projectId,
     projectName,
     workspaceCount: -1,
+    workspaceCountMethod: "skipped",
+    workspaceCapDetected: false,
     pipelineCount: -1,
     executionCount: -1,
     reachable: true,
@@ -137,12 +143,13 @@ async function scanProject(
 
   if (include === "workspaces" || include === "both") {
     promises.push(
-      fetchCount(
-        client,
-        `/iacm/api/orgs/${encodeURIComponent(org)}/projects/${encodeURIComponent(projectId)}/workspaces`,
-        { accountIdentifier: accountId, routingId: accountId, page: 1, pageSize: 50 },
-        signal,
-      ).then((n) => { base.workspaceCount = n; }),
+      countAllWorkspacesPaginated(client, org, projectId, signal).then((r) => {
+        base.workspaceCount = r.count;
+        base.workspaceCountMethod =
+          r.countMethod === "paginated-exhaustive" ? "paginated-exhaustive" :
+          r.countMethod === "unreachable" ? "unreachable" : "paginated-exhaustive";
+        base.workspaceCapDetected = r.capDetected;
+      }),
     );
   }
 
@@ -342,7 +349,28 @@ export function registerScanTool(server: McpServer, client: HarnessClient): void
         summary.note =
           "-1 means the endpoint was unreachable for that project (IaCM may not be fully configured there).";
 
-        return jsonResult({ summary, orgs });
+        // Audit metadata — lets BVR validators and downstream agents check
+        // confidence in the workspace counts. The IaCM workspace endpoint is
+        // known to silently cap at 30 items per page server-side; we walk to
+        // exhaustion, but we still surface which projects hit the cap so any
+        // future server change is detectable.
+        const projectsHittingCap = results
+          .filter((r) => r.workspaceCapDetected)
+          .map((r) => `${r.org}/${r.project}`);
+        const unreachableProjects = results
+          .filter((r) => r.workspaceCountMethod === "unreachable")
+          .map((r) => `${r.org}/${r.project}`);
+        const audit = {
+          workspaceCountMethod: include === "pipelines" ? "skipped" : "paginated-exhaustive",
+          pipelineCountMethod: include === "workspaces" ? "skipped" : "totalElements",
+          projectsHittingPageCap: projectsHittingCap,
+          unreachableProjects,
+          guidance:
+            "Top-line totals were computed by paginating each project's workspace list to exhaustion. " +
+            "Cross-validate with the IaCM dashboard for high-stakes deliverables — agree to ±5%.",
+        };
+
+        return jsonResult({ summary, orgs, _meta: audit });
       } catch (err) {
         if (err instanceof Error && err.message.includes("resource_type")) {
           return errorResult(err.message);
