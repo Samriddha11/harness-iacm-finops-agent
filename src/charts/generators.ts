@@ -574,13 +574,25 @@ export interface MonthlyGrowthData {
 export function monthlyGrowth(d: MonthlyGrowthData): string {
   const points = d.points;
   const W = 760, H = 380;
-  // PAD_R is generous so end-of-line value annotations have room and never clip.
-  const PAD_L = 60, PAD_R = 80, PAD_T = d.title ? 70 : 36, PAD_B = 56;
-  const plotW = W - PAD_L - PAD_R;
-  const plotH = H - PAD_T - PAD_B;
 
   const wsCol = P.primary;
   const plCol = P.tertiary;
+
+  // Detect growth chip presence early so we can reserve vertical space for them.
+  // Historically the chips were rendered in the same y-band as the title and
+  // collided whenever the chip text was long enough to grow leftward into the
+  // title's footprint. We now place them on their own row below the subtitle
+  // and pad the plot area to suit, so the chart is robust regardless of chip
+  // text length or title width.
+  const hasChips = !!(d.growth?.workspaces || d.growth?.pipelines);
+  const CHIP_ROW_H = 28;
+
+  // PAD_R is generous so end-of-line value annotations have room and never clip.
+  const PAD_L = 60, PAD_R = 80;
+  const PAD_T = (d.title ? 70 : 36) + (hasChips ? CHIP_ROW_H : 0);
+  const PAD_B = 56;
+  const plotW = W - PAD_L - PAD_R;
+  const plotH = H - PAD_T - PAD_B;
 
   // Y axis — shared, scaled to the larger of the two series
   const maxRaw = Math.max(1, ...points.flatMap((p) => [p.workspaces, p.pipelines]));
@@ -677,17 +689,46 @@ export function monthlyGrowth(d: MonthlyGrowthData): string {
     if (d.growth?.workspaces) chips.push({ text: `Workspaces ${d.growth.workspaces}`, col: wsCol });
     if (d.growth?.pipelines)  chips.push({ text: `Pipelines ${d.growth.pipelines}`,   col: plCol });
     if (chips.length === 0) return "";
-    let cursor = W - PAD_R + 12;
+
+    // Chips render on their own row, below the title+subtitle and above the
+    // plot. Anchored y is calculated relative to the title presence to keep
+    // the spacing rhythm consistent with the rest of the chart.
+    const chipY = (d.title ? 56 : 22);
+    const chipH = 22;
+    const chipGap = 8;
+
+    // Right-align the chip group: rightmost chip's right edge sits at
+    // (W - PAD_R), leftmost chip ends at the computed leftBound.
+    const widths = chips.map((c) => approxW(c.text, 10, 0) + 22);
+    let totalW = widths.reduce((s, w) => s + w, 0) + chipGap * Math.max(0, chips.length - 1);
+
+    // Overflow guard: if the chip group would push into the title's space
+    // (chips.left < PAD_L), drop the redundant "Workspaces" / "Pipelines"
+    // prefixes — the legend at the bottom already disambiguates by colour.
+    const minLeft = PAD_L;
+    if (totalW > (W - PAD_R - minLeft)) {
+      for (let i = 0; i < chips.length; i++) {
+        const stripped = chips[i]!.text
+          .replace(/^Workspaces\s+/i, "")
+          .replace(/^Pipelines\s+/i, "");
+        chips[i] = { ...chips[i]!, text: stripped };
+        widths[i] = approxW(stripped, 10, 0) + 22;
+      }
+      totalW = widths.reduce((s, w) => s + w, 0) + chipGap * Math.max(0, chips.length - 1);
+    }
+
+    let cursor = W - PAD_R; // right edge in plot coords
     const els: string[] = [];
-    for (const c of chips.reverse()) {
-      const w = approxW(c.text, 10, 0) + 22;
+    for (let i = chips.length - 1; i >= 0; i--) {
+      const c = chips[i]!;
+      const w = widths[i]!;
       cursor -= w;
       els.push(`
-        <rect x="${cursor.toFixed(1)}" y="14" width="${w.toFixed(1)}" height="22" rx="6" fill="${c.col}" opacity="0.14"/>
-        <rect x="${cursor.toFixed(1)}" y="14" width="${w.toFixed(1)}" height="22" rx="6" fill="none" stroke="${c.col}" stroke-width="1" opacity="0.55"/>
-        <text x="${(cursor + w / 2).toFixed(1)}" y="29" text-anchor="middle" font-size="10" font-weight="700" fill="${c.col}" font-family="${FN}">${esc(c.text)}</text>
+        <rect x="${cursor.toFixed(1)}" y="${chipY}" width="${w.toFixed(1)}" height="${chipH}" rx="6" fill="${c.col}" opacity="0.14"/>
+        <rect x="${cursor.toFixed(1)}" y="${chipY}" width="${w.toFixed(1)}" height="${chipH}" rx="6" fill="none" stroke="${c.col}" stroke-width="1" opacity="0.55"/>
+        <text x="${(cursor + w / 2).toFixed(1)}" y="${(chipY + chipH / 2 + 3.6).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="${c.col}" font-family="${FN}">${esc(c.text)}</text>
       `);
-      cursor -= 8;
+      cursor -= chipGap;
     }
     return els.join("");
   }
