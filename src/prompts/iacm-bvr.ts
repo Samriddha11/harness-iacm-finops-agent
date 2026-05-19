@@ -137,11 +137,11 @@ The example data shapes in Steps 2.1–2.6 below show the JSON to put
   "chart_kind": "scorecard",
   "data": {
     "tiles": [
-      { "value": "<workspace_count>",  "label": "Workspaces",        "sub": "across <orgs> orgs" },
-      { "value": "<pipeline_count>",   "label": "Pipelines",         "sub": "across <projects> projects" },
-      { "value": "<opa_coverage_pct>%","label": "OPA Coverage",      "sub": "all pipelines governed" },
-      { "value": "<active>/<total>",   "label": "Active Policy Sets","sub": "<disabled> disabled — quick wins" },
-      { "value": "<score>/100",        "label": "Maturity Score",    "sub": "<tier> tier" }
+      { "value": "<workspaces>", "label": "WORKSPACES", "sub": "Terraform / OpenTofu under mgmt" },
+      { "value": "<pipelines>", "label": "IaCM PIPELINES", "sub": "across <N> orgs" },
+      { "value": "<opa_pct>%", "label": "OPA GOVERNED", "sub": "<enforced>/<total> pipelines" },
+      { "value": "<projects>", "label": "PROJECTS", "sub": "<active> active · <dormant> runway" },
+      { "value": "<score>/100", "label": "MATURITY", "sub": "<tier> · <pts> pts to next tier" }
     ]
   },
   "output_path": "${workspace_root}/reports/<bvr-id>/assets/scorecard.svg"
@@ -361,14 +361,14 @@ bvr_template: "canonical"
 
 <2–3 sentences: scale of the deployment, headline maturity score, single most important opportunity.>
 
-\\\`\\\`\\\`chart scorecard Account Scorecard
+\\\`\\\`\\\`chart scorecard <Customer> — IaCM at a Glance
 {
   "tiles": [
-    { "value": "<workspaces>",     "label": "WORKSPACES",         "sub": "across <orgs> orgs" },
-    { "value": "<pipelines>",      "label": "PIPELINES",          "sub": "across <projects> projects" },
-    { "value": "<opa_pct>%",       "label": "OPA COVERAGE",       "sub": "all pipelines governed" },
-    { "value": "<active>/<total>", "label": "ACTIVE POLICY SETS", "sub": "<disabled> disabled — quick wins" },
-    { "value": "<score>/100",      "label": "MATURITY SCORE",     "sub": "<tier> tier" }
+    { "value": "<workspaces>", "label": "WORKSPACES", "sub": "Terraform / OpenTofu under mgmt" },
+    { "value": "<pipelines>", "label": "IaCM PIPELINES", "sub": "across <N> orgs" },
+    { "value": "<opa_pct>%", "label": "OPA GOVERNED", "sub": "<policy detail subline>" },
+    { "value": "<projects>", "label": "PROJECTS", "sub": "<active> active · <dormant> runway" },
+    { "value": "<score>/100", "label": "MATURITY", "sub": "<tier> · <pts> pts to Run" }
   ]
 }
 \\\`\\\`\\\`

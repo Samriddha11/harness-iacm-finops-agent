@@ -1018,6 +1018,12 @@ figure svg {
   margin: 0 auto;
   border-radius: 8px;
 }
+/* Maturity radar: cap width so axis labels stay inside the report column */
+figure:has(svg.chart-maturity-radar) {
+  max-width: min(100%, 640px);
+  margin-left: auto;
+  margin-right: auto;
+}
 figure svg text { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
 
 /* svg-bg class hook (used by newer chart generators) */

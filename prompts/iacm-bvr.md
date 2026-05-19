@@ -1,6 +1,8 @@
 # IaCM BVR — saved prompt template
 
-Copy-paste this into a Cursor / Claude Desktop chat to produce a tool-validated, structurally-consistent IaCM Business Value Review.
+Copy-paste this into a Cursor / Claude Desktop chat to produce a **Tu/Twilio-style** IaCM Business Value Review — same layout for every customer (only data and narrative change).
+
+**One-liner:** `Run an IaCM BVR for customer <NAME>. Call iacm_bvr MCP prompt, follow the recipe exactly, validate before render.`
 
 This is a **convenience layer on top of three tool-side guarantees**:
 
