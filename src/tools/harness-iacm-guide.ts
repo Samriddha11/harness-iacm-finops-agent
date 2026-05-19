@@ -188,21 +188,24 @@ The bundled tools (\`harness_iacm_scan\`, \`harness_iacm_feature_scan\`, \`harne
 
 Every IaCM Business Value Review must follow the **identical section ordering and naming** so reports stay recognisable across customers and across agent sessions. The authoritative recipe is the **\`iacm_bvr\` MCP prompt** — invoke it first whenever you start a BVR. It returns the full instructions, chart data shapes, callout vocabulary, and frontmatter contract.
 
-The fixed top-level structure is:
+The fixed deliverable (same for **every customer** — only numbers and narrative change):
 
 \`\`\`
-Frontmatter (title, customer, date, defaultTheme, heroStats, bvr_template: "canonical")
-Executive Summary                          [scorecard chart]
-1. Enterprise Footprint                    [org_footprint + monthly_growth]
-2. Maturity Assessment — <tier> Tier       [maturity_radar + dimension table]
-3. Feature Adoption                        [feature_gauges]
-4. OPA Governance                          [opa_donut]
-5. Recommended Actions                     [priority_matrix]
-6. Before & After                          [pain/gain comparison table]
-Appendix — Organisation Summary            [per-org table]
+Frontmatter + cover (4 hero tiles: workspaces, pipelines, OPA %, maturity)
+Executive Summary — 5-tile scorecard, ::: success, ::: critical (plan-time blind spots)
+1. Enterprise Footprint — org_footprint, Top 10 Projects bar, monthly_growth (+N/12mo chips)
+   1.1 Workspace Status — bar chart + status table
+   1.2 Provisioner sprawl — type bar, version-lines bar, exact-pin table
+2. Maturity Assessment — radar (9 core dims), table, extended sprawl/registry rows
+3. Feature Adoption — 4 gauges (Templates, Checkov, Cost, Registry), Feature|Adoption|Note table
+   3.1 Module registry — bar chart (Harness private / other / public / none)
+4. OPA Governance — opa_donut; policy-set|Purpose table when sets exist
+5. Recommended Actions — priority_matrix + P1/P2 ::: action blocks (Effort · +pts)
+6. Before & After — multi-row comparison table
+Appendix — org # table, active project summary, methodology footnote
 \`\`\`
 
-**This is enforced, not advisory.** Both \`harness_iacm_render_report\` and \`harness_iacm_markdown_to_pdf\` invoke the validator at \`src/utils/bvr-validator.ts\` and **refuse to render** when the document deviates from the canonical template. The error response lists the exact violations (missing sections, out-of-order sections, missing frontmatter fields, unknown \`:::\` directives) with line numbers and remediation hints. There is no way to silently produce a non-canonical BVR.
+**This is enforced, not advisory.** \`harness_iacm_bvr_validate\` checks H1 sections, required subsections (1.1, 1.2, 3.1), required chart kinds, ≥4 bar charts, and the feature-adoption table. Renderers **refuse to output** until validation passes. The error response lists the exact violations (missing sections, out-of-order sections, missing frontmatter fields, unknown \`:::\` directives) with line numbers and remediation hints. There is no way to silently produce a non-canonical BVR.
 
 ### Preflight tool — \`harness_iacm_bvr_validate\`
 

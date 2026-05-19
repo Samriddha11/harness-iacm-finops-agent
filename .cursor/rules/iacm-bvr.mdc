@@ -17,16 +17,21 @@ The fixed top-level structure is:
 
 ```
 Frontmatter (title, customer, date, defaultTheme, heroStats, bvr_template: "canonical")
-Executive Summary                          [scorecard chart]
-1. Enterprise Footprint                    [org_footprint + monthly_growth]
-2. Maturity Assessment — <tier> Tier       [maturity_radar + dimension table]
-3. Feature Adoption                        [feature_gauges]
-4. OPA Governance                          [opa_donut]
-5. Recommended Actions                     [priority_matrix]
-6. Before & After                          [pain/gain comparison table]
-Appendix — Organisation Summary            [per-org table]
-Footer line: "Harness IaCM · BVR · <date> · <customer> · Confidential"
+Executive Summary                          [5-tile scorecard + success + critical callouts]
+1. Enterprise Footprint                    [org_footprint + Top 10 Projects bar + monthly_growth]
+   ### 1.1 Workspace Status Distribution   [status bar + table]
+   ### 1.2 Provisioner Type & Version Sprawl [type bar + version lines bar + pin table]
+2. Maturity Assessment — <tier> Tier       [maturity_radar + 9-row table + extended sprawl/registry]
+3. Feature Adoption                        [4 gauges + Feature|Adoption|Note table]
+   ### 3.1 Module registry standardisation [registry bar chart]
+4. OPA Governance                          [opa_donut + policy-set table when sets > 0]
+5. Recommended Actions                     [priority_matrix + ::: action callouts w/ Effort · +pts]
+6. Before & After                          [8-row pain/gain table]
+Appendix — Organisation Summary            [# org table + active projects + methodology]
+Footer: Harness IaCM · BVR · <date> · <customer> · <account-url> · Confidential · live APIs
 ```
+
+`harness_iacm_bvr_validate` **blocks render** if any required subsection, chart kind, or feature table is missing (not just H1 sections).
 
 **No new top-level sections. No reordering. No renaming.** Customisations are user-driven only — never deviate pre-emptively. If the user explicitly asks for an addition (e.g. "add a Glossary section"), do that change **and** mention you've left canonical mode (set `bvr_template: "custom"` in frontmatter to satisfy the validator). If the user explicitly removes a section, same pattern.
 

@@ -76,9 +76,17 @@ export interface MaturityRadarData {
 }
 
 export function maturityRadar(d: MaturityRadarData): string {
-  const W = 580, H = 560, cx = 290, cy = 290, maxR = 190;
   const dims = d.dimensions;
   const n = dims.length;
+  // Scale layout for axis count — 11+ dimensions need a smaller polygon and more label room.
+  const W = n <= 8 ? 520 : n <= 10 ? 560 : 600;
+  const H = n <= 8 ? 460 : n <= 10 ? 500 : 540;
+  const cx = W / 2;
+  const cy = H / 2 + (d.title ? 8 : 0);
+  const maxR = n <= 8 ? 155 : n <= 10 ? 130 : 112;
+  const labelR = maxR + (n <= 8 ? 50 : n <= 10 ? 56 : 62);
+  const labelSize = n > 10 ? 10 : n > 8 ? 10.5 : 11;
+  const lineH = n > 10 ? 12 : 14;
   const ang = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
 
   const gridLines = [0.25, 0.5, 0.75, 1].map((pct) => {
@@ -103,14 +111,13 @@ export function maturityRadar(d: MaturityRadarData): string {
 
   const axisLabels = dims.map(({ label }, i) => {
     const a = ang(i);
-    const lr = maxR + 46;
-    const lx = cx + lr * Math.cos(a);
-    const ly = cy + lr * Math.sin(a);
+    const lx = cx + labelR * Math.cos(a);
+    const ly = cy + labelR * Math.sin(a);
     const anchor = Math.abs(Math.cos(a)) < 0.15 ? "middle" : Math.cos(a) < 0 ? "end" : "start";
-    const totalH = (label.length - 1) * 14;
+    const totalH = (label.length - 1) * lineH;
     const baseY = ly - totalH / 2;
-    const tspans = label.map((l, li) => `<tspan x="${lx}" dy="${li === 0 ? 0 : 14}">${esc(l)}</tspan>`).join("");
-    return `<text y="${baseY + 4}" text-anchor="${anchor}" font-size="11.5" font-weight="700" fill="${P.text}" font-family="${F}">${tspans}</text>`;
+    const tspans = label.map((l, li) => `<tspan x="${lx}" dy="${li === 0 ? 0 : lineH}">${esc(l)}</tspan>`).join("");
+    return `<text y="${baseY + 4}" text-anchor="${anchor}" font-size="${labelSize}" font-weight="700" fill="${P.text}" font-family="${F}">${tspans}</text>`;
   }).join("");
 
   const dots = dims.map(({ score, max }, i) => {
@@ -128,7 +135,7 @@ export function maturityRadar(d: MaturityRadarData): string {
     return P.danger;
   };
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="chart-maturity-radar" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
     <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
     ${d.title ? `<text x="${W / 2}" y="32" text-anchor="middle" font-size="15" font-weight="800" fill="${P.textDeep}" font-family="${F}">${esc(d.title)}</text>` : ""}
     ${gridLines}${pctLabels}${spokes}
@@ -209,13 +216,15 @@ export interface OpaDonutData {
 
 export function opaDonut(d: OpaDonutData): string {
   const W = 620, H = 320, cx = 165, cy = 165, R = 108, ri = 64;
-  const total = Math.max(1, d.total);
+  const sliceSum = d.active + d.disabled;
+  const total = Math.max(1, sliceSum > 0 ? sliceSum : d.total);
   const slices = [
     { count: d.active,   col: P.success },
     { count: d.disabled, col: P.warning },
   ];
   let angle = -Math.PI / 2;
   const paths = slices.map(({ count, col }) => {
+    if (count <= 0) return "";
     const sweep = (count / total) * 2 * Math.PI;
     const x1 = cx + R * Math.cos(angle), y1 = cy + R * Math.sin(angle);
     const x2 = cx + R * Math.cos(angle + sweep), y2 = cy + R * Math.sin(angle + sweep);
@@ -226,6 +235,11 @@ export function opaDonut(d: OpaDonutData): string {
     angle += sweep;
     return path;
   }).join("");
+
+  // Zero-slice edge case (e.g. 0 policy sets with total=0) — draw a neutral ring so the chart is visible.
+  const emptyRing = sliceSum === 0
+    ? `<circle cx="${cx}" cy="${cy}" r="${(R + ri) / 2}" fill="none" stroke="${P.grid}" stroke-width="${R - ri}" stroke-dasharray="6 4" opacity="0.85"/>`
+    : "";
 
   const lx = 305, ly = 50;
   const aItems = (d.activeItems   ?? []).slice(0, 8);
@@ -245,7 +259,7 @@ export function opaDonut(d: OpaDonutData): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
     <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
     ${d.title ? `<text x="${W / 2}" y="28" text-anchor="middle" font-size="15" font-weight="800" fill="${P.textDeep}" font-family="${F}">${esc(d.title)}</text>` : ""}
-    ${paths}
+    ${emptyRing}${paths}
     <text x="${cx}" y="${cy - 16}" text-anchor="middle" font-size="36" font-weight="700" fill="${P.textDeep}" letter-spacing="-0.02em" font-family="${FN}">${esc(d.centerValue ?? String(d.total))}</text>
     ${d.centerLabel ? `<text x="${cx}" y="${cy + 6}" text-anchor="middle" font-size="11" fill="${P.muted}" font-family="${F}">${esc(d.centerLabel)}</text>` : ""}
     ${d.centerSub ? `<text x="${cx}" y="${cy + 24}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${P.success}" font-family="${FN}">${esc(d.centerSub)}</text>` : ""}

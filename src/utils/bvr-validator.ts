@@ -49,7 +49,30 @@ export type ViolationKind =
   | "missing-section"
   | "section-out-of-order"
   | "duplicate-section"
-  | "unknown-directive";
+  | "unknown-directive"
+  | "missing-subsection"
+  | "missing-chart"
+  | "missing-table";
+
+/** H3 subsections every canonical customer BVR must include (Tu/Twilio deliverable). */
+const REQUIRED_SUBSECTIONS: Array<{ id: string; matcher: RegExp; display: string }> = [
+  { id: "workspace-status", matcher: /^#{1,3}\s*1\.1\s+Workspace\s+Status/i, display: "1.1 Workspace Status Distribution" },
+  { id: "provisioner-sprawl", matcher: /^#{1,3}\s*1\.2\s+Provisioner/i, display: "1.2 Provisioner Type & Version Sprawl" },
+  { id: "module-registry", matcher: /^#{1,3}\s*3\.1\s+Module\s+registry/i, display: "3.1 Module registry standardisation" },
+];
+
+/** Chart kinds required in every canonical BVR (inline ```chart <kind> fences). */
+const REQUIRED_CHART_KINDS = [
+  "scorecard",
+  "org_footprint",
+  "monthly_growth",
+  "maturity_radar",
+  "feature_gauges",
+  "opa_donut",
+  "priority_matrix",
+] as const;
+
+const MIN_BAR_CHARTS = 4;
 
 export interface Violation {
   kind: ViolationKind;
@@ -202,6 +225,53 @@ export function validateBvrMarkdown(md: string): ValidationResult {
             "Either add the section to your BVR, or set frontmatter 'bvr_template: \"custom\"' if this is a deliberately non-canonical document.",
         });
       }
+    }
+
+    // ── Extended deliverable (subsections, charts, feature table) ─────────
+    for (const sub of REQUIRED_SUBSECTIONS) {
+      if (!lines.some((ln) => sub.matcher.test(ln))) {
+        violations.push({
+          kind: "missing-subsection",
+          message: `Required subsection '${sub.display}' is missing.`,
+          hint: "Invoke the iacm_bvr MCP prompt — every customer BVR uses the same Tu/Twilio-style subsections.",
+        });
+      }
+    }
+
+    const chartKinds: string[] = [];
+    const chartRe = /^```chart\s+(\S+)/;
+    for (const ln of lines) {
+      const m = ln.match(chartRe);
+      if (m) chartKinds.push(m[1]!.toLowerCase());
+    }
+
+    for (const kind of REQUIRED_CHART_KINDS) {
+      if (!chartKinds.includes(kind)) {
+        violations.push({
+          kind: "missing-chart",
+          message: `Required chart kind '${kind}' is missing (inline \`\`\`chart ${kind}\` fence).`,
+          hint: "See iacm_bvr MCP prompt Step 2 for JSON data shapes.",
+        });
+      }
+    }
+
+    const barCount = chartKinds.filter((k) => k === "bar").length;
+    if (barCount < MIN_BAR_CHARTS) {
+      violations.push({
+        kind: "missing-chart",
+        message: `Canonical BVR requires at least ${MIN_BAR_CHARTS} bar charts (found ${barCount}).`,
+        hint:
+          "Include: Top 10 Projects, Workspace Status, Provisioner Type, Version Lines, Module registry (see iacm_bvr §1 and §3.1).",
+      });
+    }
+
+    const hasFeatureTable = lines.some((ln) => /\|\s*Feature\s*\|\s*Adoption\s*\|\s*Note\s*\|/i.test(ln));
+    if (!hasFeatureTable) {
+      violations.push({
+        kind: "missing-table",
+        message: "Feature Adoption section is missing the '| Feature | Adoption | Note |' table.",
+        hint: "Populate from harness_iacm_feature_scan and harness_iacm_workspace_inventory.",
+      });
     }
   }
 
