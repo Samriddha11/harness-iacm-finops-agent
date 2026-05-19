@@ -103,11 +103,12 @@ The `reports/` folder is gitignored by default (`reports/*` excluded, `reports/e
 2. `iacm_bvr` MCP **prompt** — pulls in the canonical BVR recipe with the exact section structure, chart shapes, callout vocabulary, and frontmatter contract for this customer engagement
 3. `harness_iacm_list resource_type=harness_org` — confirm auth and visible scope
 4. `harness_iacm_scan` — workspace + pipeline counts (verify `_meta.workspaceCountMethod == "paginated-exhaustive"`)
-5. `harness_iacm_feature_scan` — Checkov / cost estimation / templates / private registry
-6. `harness_iacm_opa_scan` — policy sets and coverage
-7. `harness_iacm_growth months=12` — time-series
-8. `harness_iacm_maturity_assessment` — 9-dimension scoring
-9. **Reconcile** workspace totals to dashboard ±5% before any chart or markdown
-10. Write markdown using the canonical structure (see top of this rule)
-11. `harness_iacm_bvr_validate` — preflight the markdown before render
-12. `harness_iacm_render_report` and/or `markdown_to_pdf` — produces final artifacts (these run validation again as a hard gate; if step 11 was clean, this step succeeds)
+5. `harness_iacm_workspace_inventory` — provisioner/version sprawl, workspace status distribution, module registry (Harness private / other private / none); use `fetch_details: true` for accurate version pins
+6. `harness_iacm_feature_scan` — Checkov / cost estimation / templates / private registry
+7. `harness_iacm_opa_scan` — policy sets and coverage
+8. `harness_iacm_growth months=12` — time-series
+9. `harness_iacm_maturity_assessment` — 11-dimension scoring (includes sprawl + module registry; tiers by % of 120)
+10. **Reconcile** workspace totals to dashboard ±5% before any chart or markdown
+11. Write markdown using the canonical structure (see top of this rule); include status + sprawl + module registry subsections under §1 and §3 per `iacm_bvr` prompt
+12. `harness_iacm_bvr_validate` — preflight the markdown before render
+13. `harness_iacm_render_report` and/or `markdown_to_pdf` — produces final artifacts (these run validation again as a hard gate; if step 12 was clean, this step succeeds)

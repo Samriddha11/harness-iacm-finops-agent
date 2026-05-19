@@ -14,6 +14,7 @@ import { registerOpaScanTool } from "./harness-iacm-opa-scan.js";
 import { registerMarkdownToPdfTool } from "./markdown-to-pdf.js";
 import { registerRenderTool } from "./harness-iacm-render.js";
 import { registerMaturityTool } from "./harness-iacm-maturity.js";
+import { registerWorkspaceInventoryTool } from "./harness-iacm-workspace-inventory.js";
 import { registerGuideTool } from "./harness-iacm-guide.js";
 import { registerChartTool } from "./harness-iacm-chart.js";
 import { registerBvrValidateTool } from "./harness-iacm-bvr-validate.js";
@@ -35,6 +36,7 @@ export function registerAllTools(
   registerRenderTool(server);
   registerChartTool(server);
   registerMaturityTool(server, client);
+  registerWorkspaceInventoryTool(server, client);
   registerDescribeTool(server, registry);
   registerGuideTool(server);
   registerBvrValidateTool(server);

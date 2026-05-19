@@ -98,9 +98,11 @@ Run these tools and keep their structured responses for use in Steps 2-5:
 | # | Tool                       | Purpose |
 |---|----------------------------|---------|
 | 1 | \`harness_iacm_scan\`        | Total orgs / projects / workspaces / pipelines, plus per-org breakdown |
-| 2 | \`harness_iacm_feature_scan\`| Feature adoption: Checkov, cost estimation, IaCM templates, private registry |
-| 3 | \`harness_iacm_opa_scan\`    | OPA policies + policy sets, pipeline coverage, enabled vs disabled |
-| 4 | \`harness_iacm_maturity\`    | 9-axis maturity score (CRAWL/WALK/RUN/FLY tier) |
+| 2 | \`harness_iacm_workspace_inventory\` | Provisioner/version sprawl, workspace status distribution, module registry (Harness private / other private / none) — use \`fetch_details: true\` for accurate version pins |
+| 3 | \`harness_iacm_feature_scan\`| Feature adoption: Checkov, cost estimation, IaCM templates, private registry |
+| 4 | \`harness_iacm_opa_scan\`    | OPA policies + policy sets, pipeline coverage, enabled vs disabled |
+| 5 | \`harness_iacm_growth\`      | 12-month workspace + pipeline trajectory (optional but recommended) |
+| 6 | \`harness_iacm_maturity_assessment\` | 11-axis maturity score (includes sprawl + registry dimensions; Crawl/Walk/Run by %) |
 
 ---
 
@@ -148,10 +150,11 @@ The example data shapes in Steps 2.1–2.6 below show the JSON to put
 
 ### 2.2 — Maturity radar
 
-Use the 9 dimensions from \`harness_iacm_maturity\`. Center value is the
-total score; \`centerSub\` is "out of 100"; \`centerTier\` is the tier
-(CRAWL/WALK/RUN/FLY) — it auto-colours green for RUN/FLY, amber for WALK,
-red for CRAWL.
+Use all 11 dimensions from \`harness_iacm_maturity_assessment\` (includes
+**Provisioner Standardisation** and **Module Registry Standardisation** —
+low scores when many Terraform/OpenTofu/Terragrunt versions or no private
+registry). Center value is the total score; \`centerSub\` is "out of 120";
+\`centerTier\` is the tier (Crawl/Walk/Run) — auto-colours by tier.
 
 \`\`\`json
 {
@@ -390,6 +393,37 @@ bvr_template: "canonical"
 **Sustained adoption.** <One sentence on workspace + pipeline growth percentages.>
 :::
 
+### Workspace lifecycle status
+
+<1–2 sentences on active vs inactive vs failed/apply_needed counts from \`harness_iacm_workspace_inventory\`.>
+
+\`\`\`chart bar Workspace status distribution
+{
+  "title": "Workspace status",
+  "bars": [
+    { "label": "Active", "value": <active_count>, "tone": "success" },
+    { "label": "Inactive", "value": <inactive_count>, "tone": "secondary" },
+    { "label": "Apply needed", "value": <apply_needed_count>, "tone": "warning" },
+    { "label": "Failed", "value": <failed_count>, "tone": "danger" }
+  ]
+}
+\`\`\`
+
+### Provisioner and version sprawl
+
+<Table of provisioner types (Terraform, OpenTofu, Terragrunt) and top version lines. Call out sprawl maturity finding.>
+
+\`\`\`chart bar Top provisioner version lines
+{
+  "title": "Provisioner version lines (major.minor)",
+  "bars": [ /* top 6–8 from versionLabels[] */ ]
+}
+\`\`\`
+
+::: critical
+**Version sprawl.** <Finding from versionSprawl — many pins/lines lowers Provisioner Standardisation score.>
+:::
+
 ### Geographic Coverage
 
 <Table or short list of regions if known, otherwise omit this subsection.>
@@ -428,6 +462,26 @@ bvr_template: "canonical"
 
 ::: warning
 **<second gap one-liner>** <Short paragraph on the second-largest gap.>
+:::
+
+### Module registry standardisation
+
+<Explain Harness private vs other private vs no registry. No registry = git-only / unset = standardisation opportunity.>
+
+\`\`\`chart bar Module registry usage
+{
+  "title": "Module registry sources",
+  "bars": [
+    { "label": "Harness private", "value": <harness_private>, "tone": "success" },
+    { "label": "Other private", "value": <other_private>, "tone": "primary" },
+    { "label": "Public only", "value": <public_only>, "tone": "secondary" },
+    { "label": "No registry", "value": <none>, "tone": "danger" }
+  ]
+}
+\`\`\`
+
+::: action
+**Standardise module consumption.** <Recommendation from moduleRegistryMaturity — expand Harness Module Registry for workspaces without registry metadata.>
 :::
 
 ---

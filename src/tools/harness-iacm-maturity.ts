@@ -5,14 +5,15 @@ import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { toMcpError } from "../utils/errors.js";
 import { createLogger } from "../utils/logger.js";
 import { listAllWorkspacesPaginated } from "../utils/iacm-pagination.js";
+import { aggregateWorkspaceInventory } from "../utils/workspace-inventory-aggregate.js";
 
 const log = createLogger("iacm-maturity");
 
 // ── Maturity model ──────────────────────────────────────────────────────────
 //
-// Three tiers: Crawl (0–39) · Walk (40–69) · Run (70–100)
+// Three tiers by percentage: Crawl (<40%) · Walk (40–69%) · Run (≥70%)
 //
-// Scoring dimensions (total = 100 pts):
+// Scoring dimensions (total = 120 pts):
 //
 //  Dimension                          Max  Notes
 //  ─────────────────────────────────────────────────────────────────────
@@ -25,8 +26,10 @@ const log = createLogger("iacm-maturity");
 //  Active OPA policy sets               5  0→0 active, 3→1-2, 5→3+
 //  IaCM templates                       5  0→none, 3→partial, 5→all pipelines
 //  Multi-project adoption               5  0→1 active, 3→2-3, 5→4+
+//  Provisioner version standardisation 10  penalises version sprawl (many pins/lines)
+//  Module registry standardisation      10  rewards Harness/private registry adoption
 //  ─────────────────────────────────────────────────────────────────────
-//  Total                              100
+//  Total                              120
 
 interface ScanInput {
   totalWorkspaces: number;
@@ -203,12 +206,15 @@ function scoreMultiProject(activeProjects: number): { score: number; finding: st
 
 // ── Tier classification ─────────────────────────────────────────────────────
 
-function classifyTier(score: number): { tier: "Crawl" | "Walk" | "Run"; description: string } {
-  if (score >= 70) return {
+const MATURITY_MAX_SCORE = 120;
+
+function classifyTier(score: number, maxScore: number = MATURITY_MAX_SCORE): { tier: "Crawl" | "Walk" | "Run"; description: string } {
+  const pct = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+  if (pct >= 70) return {
     tier: "Run",
     description: "Your IaCM adoption is mature and operating at scale. You have broad workspace coverage, strong governance, and active use of advanced features like Checkov, cost estimation, and OPA policies. Focus is on optimisation, standardisation, and extending to remaining projects.",
   };
-  if (score >= 40) return {
+  if (pct >= 40) return {
     tier: "Walk",
     description: "You have established IaCM as a working practice with meaningful workspace and pipeline coverage. Core governance (OPA) may be in place but advanced features like Checkov, cost estimation, and templates have significant room to grow.",
   };
@@ -271,7 +277,8 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
     {
       description:
         "Run a comprehensive IaCM maturity assessment across the entire account. " +
-        "Scores 9 dimensions (0–100 points) and classifies the account as Crawl, Walk, or Run. " +
+        "Scores 11 dimensions (0–120 points, normalised to %) and classifies the account as Crawl, Walk, or Run. " +
+        "Includes provisioner version sprawl and module registry standardisation. " +
         "Returns per-dimension scores with findings and recommendations, a gap analysis, " +
         "a strengths summary, and a phased roadmap to the next maturity tier. " +
         "Designed for BVR — gives customers a clear picture of where they are and how to advance.",
@@ -325,6 +332,7 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
         // ── Step 2: Collect metrics in parallel ──────────────────────────
         let totalWorkspaces = 0;
         const allPipelineNames: string[] = [];
+        const allWorkspaceRecords: Array<Record<string, unknown>> = [];
         let checkovAdopted = 0;
         let costEstAdopted = 0;
         let totalWorkspacesForCost = 0;
@@ -346,6 +354,7 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
           if (workspaces.length > 0) activeProjects++;
           totalWorkspaces += workspaces.length;
           totalWorkspacesForCost += workspaces.length;
+          allWorkspaceRecords.push(...workspaces);
           costEstAdopted += workspaces.filter((w) => w.cost_estimation_enabled === true).length;
 
           // Pipelines
@@ -421,6 +430,9 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
         const opaScores = scoreOpa(input.opaCoveragePct, input.activeOpaSets);
         const tplScore  = scoreTemplates(input.iacmTemplatesAdopted, input.totalPipelines);
         const projScore = scoreMultiProject(input.activeProjects);
+        const inventory = aggregateWorkspaceInventory(allWorkspaceRecords);
+        const sprawlScore = inventory.versionSprawl;
+        const registryScore = inventory.moduleRegistryMaturity;
 
         const dimensions: DimensionScore[] = [
           { dimension: "Workspace Adoption",      score: wsScore.score,            maxScore: 20, pct: Math.round((wsScore.score / 20) * 100),            finding: wsScore.finding,           recommendation: wsScore.recommendation },
@@ -432,10 +444,12 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
           { dimension: "OPA Policy Sets",          score: opaScores.setsScore,      maxScore: 5,  pct: Math.round((opaScores.setsScore / 5) * 100),       finding: opaScores.setsFinding,     recommendation: opaScores.setsRec },
           { dimension: "IaCM Templates",           score: tplScore.score,           maxScore: 5,  pct: Math.round((tplScore.score / 5) * 100),            finding: tplScore.finding,          recommendation: tplScore.recommendation },
           { dimension: "Multi-Project Adoption",   score: projScore.score,          maxScore: 5,  pct: Math.round((projScore.score / 5) * 100),           finding: projScore.finding,         recommendation: projScore.recommendation },
+          { dimension: "Provisioner Standardisation", score: sprawlScore.maturityScore, maxScore: 10, pct: Math.round((sprawlScore.maturityScore / 10) * 100), finding: sprawlScore.finding, recommendation: sprawlScore.recommendation },
+          { dimension: "Module Registry Standardisation", score: registryScore.maturityScore, maxScore: 10, pct: Math.round((registryScore.maturityScore / 10) * 100), finding: registryScore.finding, recommendation: registryScore.recommendation },
         ];
 
         const totalScore = dimensions.reduce((s, d) => s + d.score, 0);
-        const { tier, description } = classifyTier(totalScore);
+        const { tier, description } = classifyTier(totalScore, MATURITY_MAX_SCORE);
 
         // ── Step 4: Strengths and gaps ─────────────────────────────────────
         const sorted = [...dimensions].sort((a, b) => b.pct - a.pct);
@@ -451,16 +465,17 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
 
         // Next tier info
         const nextTier = tier === "Crawl" ? "Walk" : tier === "Walk" ? "Run" : undefined;
-        const nextThreshold = tier === "Crawl" ? 40 : tier === "Walk" ? 70 : 100;
-        const pointsToNextTier = nextTier ? Math.max(0, nextThreshold - totalScore) : 0;
+        const nextThresholdPct = tier === "Crawl" ? 40 : tier === "Walk" ? 70 : 100;
+        const nextThresholdScore = Math.ceil((nextThresholdPct / 100) * MATURITY_MAX_SCORE);
+        const pointsToNextTier = nextTier ? Math.max(0, nextThresholdScore - totalScore) : 0;
 
         const roadmap = buildRoadmap(tier, dimensions);
 
         const result: MaturityResult = {
           tier,
           totalScore,
-          maxScore: 100,
-          pct: totalScore,
+          maxScore: MATURITY_MAX_SCORE,
+          pct: Math.round((totalScore / MATURITY_MAX_SCORE) * 100),
           tierDescription: description,
           nextTier,
           pointsToNextTier,
@@ -472,7 +487,7 @@ export function registerMaturityTool(server: McpServer, client: HarnessClient): 
 
         // ── Step 5: BVR framing ────────────────────────────────────────────
         const bvr = {
-          headline: `This account is in the **${tier}** tier with a maturity score of ${totalScore}/100.`,
+          headline: `This account is in the **${tier}** tier with a maturity score of ${totalScore}/${MATURITY_MAX_SCORE} (${Math.round((totalScore / MATURITY_MAX_SCORE) * 100)}%).`,
           maturityBadge: tier,
           score: totalScore,
           ...(nextTier ? { pathToNextTier: `${pointsToNextTier} more points needed to reach ${nextTier} tier.` } : { pathToNextTier: "Maximum tier achieved — focus on sustaining and optimising." }),
