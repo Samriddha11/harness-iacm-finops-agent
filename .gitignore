@@ -10,6 +10,15 @@ build/
 .env.*.local
 mcp.json
 
+# Customer-facing BVR artifacts — never commit per-customer reports.
+# All paths under reports/ are ignored by default. To ship an anonymised
+# sample alongside the source code, opt-in by uncommenting the example
+# allow-list below and adding files under reports/example/.
+reports/*
+!reports/example/
+!reports/example/**
+!reports/.gitkeep
+
 # macOS
 .DS_Store
 .AppleDouble
