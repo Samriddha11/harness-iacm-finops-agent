@@ -46,10 +46,22 @@ Required workflow (do not skip steps, do not invent structure):
 3. Account inventory in this order:
    - harness_iacm_list resource_type=harness_org
    - harness_iacm_scan
+   - harness_iacm_workspace_inventory (fetch_details: true)
    - harness_iacm_feature_scan
    - harness_iacm_opa_scan
    - harness_iacm_growth months=12
    - harness_iacm_maturity_assessment
+
+   Visual/layout reference (structure only — never copy another customer's numbers):
+   Tu/Autodesk-style BVR + Twilio reference PDF. Every report must include:
+   - Cover: 4 hero tiles (workspaces, pipelines, OPA %, maturity)
+   - Exec scorecard: 5 tiles incl. Projects count
+   - §1: org footprint + Top 10 Projects bar + growth w/ +N/12mo chips
+   - §1.1 workspace status + §1.2 provisioner sprawl (workspace_inventory)
+   - §3: 4 feature gauges + Feature|Adoption|Note table + §3.1 module registry bar
+   - §4: OPA donut; policy-set table when sets > 0
+   - §5: priority matrix + action callouts with Effort · +pts
+   - Appendix: org table with # column, project summary, methodology block
 
 4. Validation gate — before producing any chart, markdown, or PDF:
    - Confirm every scan's _meta.workspaceCountMethod == "paginated-exhaustive".
