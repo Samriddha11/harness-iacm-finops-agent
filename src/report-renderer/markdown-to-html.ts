@@ -201,7 +201,11 @@ function renderChartFence(infoLine: string, body: string): string {
       )
     : svg.replace(/<svg\b/, `<svg role="img"`);
 
-  return `<figure>${accessibleSvg}</figure>`;
+  const figureClass =
+    kind === "maturity_radar"
+      ? "figure-chart figure-maturity-radar"
+      : "figure-chart";
+  return `<figure class="${figureClass}">${accessibleSvg}</figure>`;
 }
 
 function chartError(msg: string): string {

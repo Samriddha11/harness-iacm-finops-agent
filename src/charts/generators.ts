@@ -75,19 +75,40 @@ export interface MaturityRadarData {
   title?: string;
 }
 
+function expandBounds(
+  minX: number, minY: number, maxX: number, maxY: number,
+  x0: number, y0: number, x1: number, y1: number,
+): [number, number, number, number] {
+  return [
+    Math.min(minX, x0),
+    Math.min(minY, y0),
+    Math.max(maxX, x1),
+    Math.max(maxY, y1),
+  ];
+}
+
 export function maturityRadar(d: MaturityRadarData): string {
   const dims = d.dimensions;
   const n = dims.length;
-  // Scale layout for axis count — 11+ dimensions need a smaller polygon and more label room.
-  const W = n <= 8 ? 520 : n <= 10 ? 560 : 600;
-  const H = n <= 8 ? 460 : n <= 10 ? 500 : 540;
+  const W = 580;
+  const H = 560;
   const cx = W / 2;
-  const cy = H / 2 + (d.title ? 8 : 0);
-  const maxR = n <= 8 ? 155 : n <= 10 ? 130 : 112;
-  const labelR = maxR + (n <= 8 ? 50 : n <= 10 ? 56 : 62);
-  const labelSize = n > 10 ? 10 : n > 8 ? 10.5 : 11;
-  const lineH = n > 10 ? 12 : 14;
+  const cy = H / 2 + (d.title ? 10 : 0);
+  const maxR = n <= 8 ? 180 : n <= 10 ? 162 : 138;
+  const baseLabelR = maxR + 32;
+  const labelSize = n > 9 ? 10.5 : 11.5;
+  const lineH = 14;
   const ang = (i: number) => -Math.PI / 2 + (i * 2 * Math.PI) / n;
+  /** Push labels outward on crowded sides so two-line captions do not overlap or clip. */
+  const labelRadius = (i: number) => {
+    const c = Math.cos(ang(i));
+    const s = Math.sin(ang(i));
+    let extra = 0;
+    if (c < -0.2) extra += 28;
+    else if (c > 0.2) extra += 16;
+    if (Math.abs(s) > 0.82) extra += 12;
+    return baseLabelR + extra;
+  };
 
   const gridLines = [0.25, 0.5, 0.75, 1].map((pct) => {
     const r = maxR * pct;
@@ -109,16 +130,52 @@ export function maturityRadar(d: MaturityRadarData): string {
     return `${cx + r * Math.cos(ang(i))},${cy + r * Math.sin(ang(i))}`;
   }).join(" ");
 
-  const axisLabels = dims.map(({ label }, i) => {
+  type LabelMeta = { el: string; x0: number; y0: number; x1: number; y1: number };
+  const labelMetas: LabelMeta[] = dims.map(({ label }, i) => {
     const a = ang(i);
-    const lx = cx + labelR * Math.cos(a);
-    const ly = cy + labelR * Math.sin(a);
+    const lr = labelRadius(i);
+    const lx = cx + lr * Math.cos(a);
+    const ly = cy + lr * Math.sin(a);
     const anchor = Math.abs(Math.cos(a)) < 0.15 ? "middle" : Math.cos(a) < 0 ? "end" : "start";
-    const totalH = (label.length - 1) * lineH;
+    const totalH = Math.max(1, label.length) * lineH;
     const baseY = ly - totalH / 2;
+    const maxLineW = Math.max(...label.map((l) => approxW(l, labelSize)), labelSize * 4);
+    let x0: number, x1: number;
+    if (anchor === "middle") {
+      x0 = lx - maxLineW / 2;
+      x1 = lx + maxLineW / 2;
+    } else if (anchor === "end") {
+      x0 = lx - maxLineW;
+      x1 = lx + 4;
+    } else {
+      x0 = lx - 4;
+      x1 = lx + maxLineW;
+    }
+    const y0 = baseY;
+    const y1 = baseY + totalH + 6;
     const tspans = label.map((l, li) => `<tspan x="${lx}" dy="${li === 0 ? 0 : lineH}">${esc(l)}</tspan>`).join("");
-    return `<text y="${baseY + 4}" text-anchor="${anchor}" font-size="${labelSize}" font-weight="700" fill="${P.text}" font-family="${F}">${tspans}</text>`;
-  }).join("");
+    const el = `<text y="${baseY + 4}" text-anchor="${anchor}" font-size="${labelSize}" font-weight="700" fill="${P.text}" font-family="${F}">${tspans}</text>`;
+    return { el, x0, y0, x1, y1 };
+  });
+  const axisLabels = labelMetas.map((m) => m.el).join("");
+
+  let minX = cx - maxR;
+  let minY = cy - maxR;
+  let maxX = cx + maxR;
+  let maxY = cy + maxR;
+  if (d.title) {
+    const tw = approxW(d.title, 15);
+    [minX, minY, maxX, maxY] = expandBounds(minX, minY, maxX, maxY, cx - tw / 2, 8, cx + tw / 2, 36);
+  }
+  [minX, minY, maxX, maxY] = expandBounds(minX, minY, maxX, maxY, cx - 58, cy - 58, cx + 58, cy + 58);
+  for (const m of labelMetas) {
+    [minX, minY, maxX, maxY] = expandBounds(minX, minY, maxX, maxY, m.x0, m.y0, m.x1, m.y1);
+  }
+  const pad = { t: 28, r: 36, b: 32, l: 40 };
+  const vbX = minX - pad.l;
+  const vbY = minY - pad.t;
+  const vbW = maxX - minX + pad.l + pad.r;
+  const vbH = maxY - minY + pad.t + pad.b;
 
   const dots = dims.map(({ score, max }, i) => {
     const pct = score / max;
@@ -135,8 +192,8 @@ export function maturityRadar(d: MaturityRadarData): string {
     return P.danger;
   };
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" class="chart-maturity-radar" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-    <rect width="${W}" height="${H}" class="svg-bg" fill="${P.surface}" rx="10"/>
+  return `<svg xmlns="http://www.w3.org/2000/svg" class="chart-maturity-radar" width="100%" viewBox="${vbX.toFixed(1)} ${vbY.toFixed(1)} ${vbW.toFixed(1)} ${vbH.toFixed(1)}" preserveAspectRatio="xMidYMid meet" overflow="visible" style="max-width:${W}px">
+    <rect x="${vbX}" y="${vbY}" width="${vbW}" height="${vbH}" class="svg-bg" fill="${P.surface}" rx="10"/>
     ${d.title ? `<text x="${W / 2}" y="32" text-anchor="middle" font-size="15" font-weight="800" fill="${P.textDeep}" font-family="${F}">${esc(d.title)}</text>` : ""}
     ${gridLines}${pctLabels}${spokes}
     <polygon points="${dataPts}" fill="${P.primary}" fill-opacity="0.12" stroke="${P.primary}" stroke-width="2.5" stroke-linejoin="round"/>
