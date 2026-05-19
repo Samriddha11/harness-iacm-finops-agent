@@ -7,16 +7,16 @@ alwaysApply: true
 
 These rules apply to any agent producing or modifying a Harness IaCM Business Value Review (BVR), maturity report, growth analysis, or any customer-facing IaCM deliverable in this repo.
 
-## Canonical structure — every BVR follows the same skeleton
+## Canonical structure — enforced by the renderer
 
-Every BVR must use the **identical section ordering, naming, and chart placement** so any agent in any session produces a recognisable, brand-consistent deliverable. This is non-negotiable for customer-facing reports — inconsistency between BVRs across customers is a credibility problem, not a stylistic one.
+Every BVR uses the **identical section ordering, naming, and chart placement** so any agent in any session produces a recognisable, brand-consistent deliverable. **The renderer enforces this**: `harness_iacm_render_report` and `harness_iacm_markdown_to_pdf` validate the markdown via `harness_iacm_bvr_validate` and **refuse to render** when the document deviates from canonical structure.
 
 The authoritative recipe is the `iacm_bvr` MCP prompt at `src/prompts/iacm-bvr.ts`. **Always invoke that prompt** at the start of any BVR work; it returns the full instructions, chart data shapes, callout vocabulary, and frontmatter contract. Do not paraphrase from memory or invent your own section names.
 
 The fixed top-level structure is:
 
 ```
-Frontmatter (title, customer, date, defaultTheme, heroStats)
+Frontmatter (title, customer, date, defaultTheme, heroStats, bvr_template: "canonical")
 Executive Summary                          [scorecard chart]
 1. Enterprise Footprint                    [org_footprint + monthly_growth]
 2. Maturity Assessment — <tier> Tier       [maturity_radar + dimension table]
@@ -28,7 +28,20 @@ Appendix — Organisation Summary            [per-org table]
 Footer line: "Harness IaCM · BVR · <date> · <customer> · Confidential"
 ```
 
-**No new top-level sections. No reordering. No renaming.** If a section has no data (rare — typically only "monthly_growth" if the customer opted out of growth data), keep the heading and replace the chart with a one-line note.
+**No new top-level sections. No reordering. No renaming.** Customisations are user-driven only — never deviate pre-emptively. If the user explicitly asks for an addition (e.g. "add a Glossary section"), do that change **and** mention you've left canonical mode (set `bvr_template: "custom"` in frontmatter to satisfy the validator). If the user explicitly removes a section, same pattern.
+
+If a section has no data (rare — typically only the growth chart if growth data isn't available), keep the heading and replace the chart with a one-line note explaining why.
+
+### Preflight before render
+
+After writing the markdown, call `harness_iacm_bvr_validate` with the document path. It returns:
+
+- `valid` — boolean
+- `mode` — `"canonical"` (default) or `"custom"` (escape hatch)
+- `violations` — list of structural issues with line numbers
+- `warnings` — soft notices (extra subsections, etc.)
+
+Fix violations rather than skipping validation. If you absolutely need to render a non-canonical document, the only legitimate route is to either (a) the user has asked for a structural change → set `bvr_template: "custom"` in the frontmatter, or (b) it's a non-BVR document → call the renderer with `skip_validation: true`.
 
 ## Callout vocabulary — fixed, not freestyle
 
@@ -86,7 +99,7 @@ The `reports/` folder is gitignored by default (`reports/*` excluded, `reports/e
 
 ## Tooling order for a new BVR
 
-1. `harness_iacm_guide` — refresh on tool capabilities and the BVR validation rules
+1. `harness_iacm_guide` — refresh on tool capabilities, validation gate, and canonical structure
 2. `iacm_bvr` MCP **prompt** — pulls in the canonical BVR recipe with the exact section structure, chart shapes, callout vocabulary, and frontmatter contract for this customer engagement
 3. `harness_iacm_list resource_type=harness_org` — confirm auth and visible scope
 4. `harness_iacm_scan` — workspace + pipeline counts (verify `_meta.workspaceCountMethod == "paginated-exhaustive"`)
@@ -96,4 +109,5 @@ The `reports/` folder is gitignored by default (`reports/*` excluded, `reports/e
 8. `harness_iacm_maturity_assessment` — 9-dimension scoring
 9. **Reconcile** workspace totals to dashboard ±5% before any chart or markdown
 10. Write markdown using the canonical structure (see top of this rule)
-11. `harness_iacm_render_report` and/or `markdown_to_pdf` to produce final artifacts
+11. `harness_iacm_bvr_validate` — preflight the markdown before render
+12. `harness_iacm_render_report` and/or `markdown_to_pdf` — produces final artifacts (these run validation again as a hard gate; if step 11 was clean, this step succeeds)

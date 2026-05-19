@@ -20,6 +20,7 @@ This MCP server integrates with **Harness IaCM (Infrastructure as Code Managemen
 | \`harness_iacm_get\` | Get a single resource by ID |
 | \`harness_iacm_run\` | Trigger a plan / apply / destroy run on a workspace |
 | \`harness_iacm_describe\` | Discover resource types, fields, and operations (no API call) |
+| \`harness_iacm_bvr_validate\` | **Preflight a BVR markdown** against canonical-structure rules — call before rendering |
 | \`harness_iacm_guide\` | Return this guide |
 
 ---
@@ -182,14 +183,14 @@ The bundled tools (\`harness_iacm_scan\`, \`harness_iacm_feature_scan\`, \`harne
 
 ---
 
-## BVR canonical structure — mandatory for every customer-facing report
+## BVR canonical structure — enforced by the renderer
 
 Every IaCM Business Value Review must follow the **identical section ordering and naming** so reports stay recognisable across customers and across agent sessions. The authoritative recipe is the **\`iacm_bvr\` MCP prompt** — invoke it first whenever you start a BVR. It returns the full instructions, chart data shapes, callout vocabulary, and frontmatter contract.
 
 The fixed top-level structure is:
 
 \`\`\`
-Frontmatter (title, customer, date, defaultTheme, heroStats)
+Frontmatter (title, customer, date, defaultTheme, heroStats, bvr_template: "canonical")
 Executive Summary                          [scorecard chart]
 1. Enterprise Footprint                    [org_footprint + monthly_growth]
 2. Maturity Assessment — <tier> Tier       [maturity_radar + dimension table]
@@ -200,9 +201,28 @@ Executive Summary                          [scorecard chart]
 Appendix — Organisation Summary            [per-org table]
 \`\`\`
 
-**Do not** add new top-level sections, reorder them, or rename them. **Do not** invent new \`:::\` directive types — use only \`success\`, \`critical\`, \`warning\`, \`info\`, \`action\`, \`quote\`. If a section has no data (rare — typically only the growth chart if growth data isn't available), keep the heading and replace the chart with a one-line note explaining why.
+**This is enforced, not advisory.** Both \`harness_iacm_render_report\` and \`harness_iacm_markdown_to_pdf\` invoke the validator at \`src/utils/bvr-validator.ts\` and **refuse to render** when the document deviates from the canonical template. The error response lists the exact violations (missing sections, out-of-order sections, missing frontmatter fields, unknown \`:::\` directives) with line numbers and remediation hints. There is no way to silently produce a non-canonical BVR.
 
-This rule exists because past BVRs invented headings like "Where customer X stands on the maturity curve", "Path to RUN tier", "Strategic narrative for the call" — readable in isolation, but they break recognition when comparing two customer BVRs side-by-side. Stay on the template; it is intentionally boring and that is its value.
+### Preflight tool — \`harness_iacm_bvr_validate\`
+
+Call \`harness_iacm_bvr_validate\` with the markdown path **before** attempting to render. It returns the same structured result the gate uses, so you can fix issues iteratively without bouncing off the renderer's refusal.
+
+### The escape hatch — \`bvr_template: "custom"\`
+
+Two cases legitimately need to bypass canonical-structure enforcement:
+
+1. **The user explicitly asks for non-standard content.** Examples: "add a Glossary section after the Appendix", "drop the Before & After comparison", "this is an internal report, not a customer BVR". In every case the **user's explicit request is the trigger** — never deviate pre-emptively.
+2. **The document is intentionally not a BVR.** A quick markdown preview, a non-IaCM internal note rendered through the same theme.
+
+To opt out, set the frontmatter field \`bvr_template: "custom"\`. The validator then skips the section-skeleton check but still enforces the frontmatter contract and the \`:::\` directive vocabulary. Both renderers also accept \`skip_validation: true\` as a parameter for purely ad-hoc previews.
+
+### Closed set of \`:::\` directives
+
+Only six directive types are recognised by the renderer's CSS. Anything else fails validation:
+
+\`success\`, \`critical\`, \`warning\`, \`info\`, \`action\`, \`quote\`
+
+This rule exists because past BVRs invented headings like "Where customer X stands on the maturity curve", "Path to RUN tier", "Strategic narrative for the call" — readable in isolation, but they broke recognition when comparing two customer BVRs side-by-side. Stay on the template; it is intentionally boring and that is its value.
 
 ---
 

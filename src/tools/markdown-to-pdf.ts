@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { dirname, resolve, extname } from "node:path";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { errorResult, jsonResult } from "../utils/response-formatter.js";
+import { validateBvrMarkdown, formatViolations } from "../utils/bvr-validator.js";
 
 // Colour palette matching Harness brand
 const COLOURS = {
@@ -365,6 +366,16 @@ export function registerMarkdownToPdfTool(server: McpServer): void {
         output_path: z
           .string()
           .describe("Absolute path for the output PDF file (e.g. /Users/me/reports/bvr/iacm-bvr.pdf)"),
+        skip_validation: z
+          .boolean()
+          .describe(
+            "If true, bypass the BVR canonical-structure validation gate. " +
+            "Default false. Use only for non-BVR documents — for any customer-facing " +
+            "BVR keep validation enabled and either fix the document or set " +
+            "frontmatter 'bvr_template: \"custom\"' to opt out with intent.",
+          )
+          .default(false)
+          .optional(),
       }),
       annotations: {
         title: "Markdown → PDF (IaCM BVR)",
@@ -381,6 +392,24 @@ export function registerMarkdownToPdfTool(server: McpServer): void {
       }
       if (extname(inputPath).toLowerCase() !== ".md") {
         return errorResult(`Input file must be a .md file. Got: ${inputPath}`);
+      }
+
+      // Canonical-structure validation gate — see harness-iacm-render.ts for
+      // rationale. The same gate is applied here so BVRs cannot be exported as
+      // customer-facing PDFs without either matching the canonical template or
+      // explicitly opting out via frontmatter `bvr_template: "custom"`.
+      if (!args.skip_validation) {
+        const md = readFileSync(inputPath, "utf8");
+        const result = validateBvrMarkdown(md);
+        if (!result.valid) {
+          const formatted = formatViolations(result);
+          return errorResult(
+            `Refusing to export PDF — BVR markdown failed canonical-structure validation.\n\n` +
+            `${formatted}\n\n` +
+            `If this is intentionally a non-BVR document, call the tool again with ` +
+            `skip_validation=true.`,
+          );
+        }
       }
 
       try {

@@ -68,9 +68,17 @@ Required workflow (do not skip steps, do not invent structure):
 
 6. Markdown — save to reports/<short-customer-tag>-bvr-<YYYY-MM-DD>/iacm-bvr.md
    in my workspace_root. Use the canonical 6-section structure (see Step 2).
+   Frontmatter MUST include bvr_template: "canonical".
 
-7. Render — harness_iacm_render_report (live HTML, theme switcher) AND
+7. Preflight — call harness_iacm_bvr_validate with the markdown path.
+   If it reports violations, FIX them before continuing. Do not skip
+   validation. Do not flip bvr_template to "custom" unless I explicitly
+   asked for a non-canonical structure.
+
+8. Render — harness_iacm_render_report (live HTML, theme switcher) AND
    harness_iacm_markdown_to_pdf (offline PDF) — return both URLs/paths.
+   Both tools run the validator again as a hard gate; if step 7 was
+   clean these will succeed without issue.
 
 Customer data hygiene:
 - reports/* is gitignored by default. Do not commit the report folder

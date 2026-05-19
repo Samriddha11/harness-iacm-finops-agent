@@ -1,10 +1,11 @@
 import * as z from "zod/v4";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve, extname, basename, dirname } from "node:path";
 import { randomUUID } from "node:crypto";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { jsonResult, errorResult } from "../utils/response-formatter.js";
 import { startReportServer, registerReport, getReportUrl } from "../report-renderer/server.js";
+import { validateBvrMarkdown, formatViolations } from "../utils/bvr-validator.js";
 
 const THEMES = [
   "dark", "minimal", "ocean", "harness-pro", "kinetic", "black-lime",
@@ -53,6 +54,18 @@ export function registerRenderTool(server: McpServer): void {
           .describe(`Port for the local report server (default: ${DEFAULT_PORT})`)
           .default(DEFAULT_PORT)
           .optional(),
+        skip_validation: z
+          .boolean()
+          .describe(
+            "If true, bypass the BVR canonical-structure validation gate. " +
+            "Default false. Use only when the user has explicitly asked for a non-BVR " +
+            "document (e.g. a quick markdown preview, a generic report) — for any " +
+            "customer-facing BVR you should keep validation enabled and either fix " +
+            "the document or set frontmatter 'bvr_template: \"custom\"' to opt out " +
+            "with intent.",
+          )
+          .default(false)
+          .optional(),
       }),
       annotations: {
         title: "Render IaCM Report → Webpage",
@@ -70,6 +83,27 @@ export function registerRenderTool(server: McpServer): void {
       }
       if (extname(inputPath).toLowerCase() !== ".md") {
         return errorResult(`Input must be a .md file. Got: ${inputPath}`);
+      }
+
+      // ── Canonical-structure validation gate ───────────────────────────────
+      // Refuse to render BVRs that deviate from the canonical template unless
+      // the author has explicitly opted out via frontmatter `bvr_template:
+      // "custom"`, OR the caller explicitly passes skip_validation=true (e.g.
+      // for non-BVR markdown previews). This is the structural enforcement
+      // mechanism that makes "I made up my own sections" expensive — agents
+      // either follow the template or consciously opt out, both with intent.
+      if (!args.skip_validation) {
+        const md = readFileSync(inputPath, "utf8");
+        const result = validateBvrMarkdown(md);
+        if (!result.valid) {
+          const formatted = formatViolations(result);
+          return errorResult(
+            `Refusing to render — BVR markdown failed canonical-structure validation.\n\n` +
+            `${formatted}\n\n` +
+            `If this is intentionally a non-BVR document, call the tool again with ` +
+            `skip_validation=true.`,
+          );
+        }
       }
 
       // Start the renderer server (idempotent — reuses existing if already running)

@@ -345,6 +345,7 @@ author: "Harness IaCM"
 classification: "Confidential"
 defaultTheme: "${themeChoice}"
 heroStats: "<see Step 3>"
+bvr_template: "canonical"
 ---
 
 # Executive Summary
@@ -520,6 +521,19 @@ the response so they can switch themes interactively.
 
 ## Critical rules
 
+- **Canonical structure is non-negotiable by default.** Use the exact 8
+  H1 sections in Step 4. Do not invent new section titles like "Path to
+  RUN tier" or "Strategic narrative for the call" — fold those points
+  into the canonical sections (Recommended Actions, Executive Summary,
+  Before & After). The renderer enforces this: \`harness_iacm_render_report\`
+  and \`harness_iacm_markdown_to_pdf\` validate the document via
+  \`harness_iacm_bvr_validate\` and **refuse to produce output** when the
+  structure deviates. To opt out (rare — for non-BVR documents only),
+  set \`bvr_template: "custom"\` in the frontmatter.
+- **Preflight before render.** After writing the markdown, call
+  \`harness_iacm_bvr_validate\` with the document path to surface any
+  structural issues before rendering. Fix violations rather than skip
+  validation.
 - **Inline chart fences are the default.** Embed JSON directly in the
   markdown with \`\\\`\\\`\\\`chart <kind>\` — no \`harness_iacm_chart\`
   calls, no SVG files, no regen step. Only use \`harness_iacm_chart\`
@@ -533,6 +547,13 @@ the response so they can switch themes interactively.
 - The tone is **factual and customer-facing**, not internal/jargony.
 - The \`heroStats\` line uses **\`;\` between stats** and **\`|\` between
   value and label** — never mix the separators.
+- The closed set of \`:::\` directives is: \`success\`, \`critical\`,
+  \`warning\`, \`info\`, \`action\`, \`quote\`. Anything else fails
+  validation and renders as plain text.
+- **Customisations.** Only deviate from the canonical structure when the
+  user explicitly asks (e.g. "add a Glossary section", "remove the
+  Before & After comparison"). Their request is the trigger; never
+  pre-emptively add or remove sections.
 - After Step 5, **return the URL**, do not summarise the BVR in chat —
   the rendered page is the deliverable.
 `.trim(),
