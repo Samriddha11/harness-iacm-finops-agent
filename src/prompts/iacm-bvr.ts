@@ -98,9 +98,11 @@ Run these tools and keep their structured responses for use in Steps 2-5:
 | # | Tool                       | Purpose |
 |---|----------------------------|---------|
 | 1 | \`harness_iacm_scan\`        | Total orgs / projects / workspaces / pipelines, plus per-org breakdown |
-| 2 | \`harness_iacm_feature_scan\`| Feature adoption: Checkov, cost estimation, IaCM templates, private registry |
-| 3 | \`harness_iacm_opa_scan\`    | OPA policies + policy sets, pipeline coverage, enabled vs disabled |
-| 4 | \`harness_iacm_maturity\`    | 9-axis maturity score (CRAWL/WALK/RUN/FLY tier) |
+| 2 | \`harness_iacm_workspace_inventory\` | Provisioner/version sprawl, workspace status distribution, module registry (Harness private / other private / none) — use \`fetch_details: true\` for accurate version pins |
+| 3 | \`harness_iacm_feature_scan\`| Feature adoption: Checkov, cost estimation, IaCM templates, private registry |
+| 4 | \`harness_iacm_opa_scan\`    | OPA policies + policy sets, pipeline coverage, enabled vs disabled |
+| 5 | \`harness_iacm_growth\`      | 12-month workspace + pipeline trajectory (optional but recommended) |
+| 6 | \`harness_iacm_maturity_assessment\` | 11-axis maturity score (includes sprawl + registry dimensions; Crawl/Walk/Run by %) |
 
 ---
 
@@ -148,10 +150,11 @@ The example data shapes in Steps 2.1–2.6 below show the JSON to put
 
 ### 2.2 — Maturity radar
 
-Use the 9 dimensions from \`harness_iacm_maturity\`. Center value is the
-total score; \`centerSub\` is "out of 100"; \`centerTier\` is the tier
-(CRAWL/WALK/RUN/FLY) — it auto-colours green for RUN/FLY, amber for WALK,
-red for CRAWL.
+Use all 11 dimensions from \`harness_iacm_maturity_assessment\` (includes
+**Provisioner Standardisation** and **Module Registry Standardisation** —
+low scores when many Terraform/OpenTofu/Terragrunt versions or no private
+registry). Center value is the total score; \`centerSub\` is "out of 120";
+\`centerTier\` is the tier (Crawl/Walk/Run) — auto-colours by tier.
 
 \`\`\`json
 {
@@ -316,9 +319,15 @@ P2 = some engineering, P3 = longer-term investments.
 
 ## Step 3 — Compute hero stats
 
-Pick the 4 most striking numbers for the cover hero tiles:
+Pick **4** cover hero tiles (semicolon-separated; the cover page renders these only):
 
-    "<workspaces>|Workspaces; <pipelines>|Pipelines; <opa_pct>%|OPA Governed; <score>/100|Maturity · <tier>"
+    "<workspaces>|WORKSPACES; <pipelines>|PIPELINES; <opa_pct>%|OPA GOVERNED; <score>/100|MATURITY · <TIER>"
+
+The **in-document scorecard** (Tu/Twilio style) uses **5** tiles:
+
+    Workspaces · IaCM Pipelines · OPA Governed · **Projects** (total · active/dormant) · Maturity (score · pts to next tier)
+
+Do **not** duplicate Templates on the cover — surface template % in the scorecard callouts and Feature Adoption section.
 
 This goes into the \`heroStats\` frontmatter line in Step 4.
 
@@ -337,7 +346,7 @@ Use this exact structure (frontmatter, sections, callouts):
 \`\`\`markdown
 ---
 title: "IaCM Business Value Review"
-subtitle: "Infrastructure as Code Management at enterprise scale"
+subtitle: "Infrastructure as Code Management — <platform or programme name, e.g. CloudOS platform>"
 customer: "${customer_name}"
 docType: "Business Value Review"
 date: "<Mon DD, YYYY>"
@@ -365,29 +374,79 @@ bvr_template: "canonical"
 \\\`\\\`\\\`
 
 ::: success
-**The headline.** <One sentence framing the strongest signal — e.g. "Six of nine maturity dimensions score full marks.">
+**The headline.** <Strongest signal — footprint + governance strength OR template adoption %.>
+:::
+
+::: critical
+**Three plan-time blind spots.** <When Checkov, cost estimation, and/or module registry are weak: list counts and maturity-point opportunity. Use even when OPA is strong — Twilio-style "asymmetric risk" framing.>
 :::
 
 ---
 
 # 1. Enterprise Footprint
 
-<2–3 sentences on breadth: number of orgs, business units, geographies covered.>
+<2–3 sentences: org count, factory concentration (% workspaces in top 1–3 projects), migration/onboarding narrative.>
 
-\\\`\\\`\\\`chart org_footprint Top 10 Organisations by IaCM Footprint
-{ /* org_footprint data — see Step 2.5 */ }
+\\\`\\\`\\\`chart org_footprint IaCM Footprint by Organisation
+{ /* org_footprint — see Step 2.5 */ }
 \\\`\\\`\\\`
 
 ::: success
-**Breadth, not just scale.** <Concrete observations — name the top 1–2 orgs and what makes their pattern stand out.>
+**Concentration is structural, not accidental.** <Name top factory orgs/projects; note that enabling Checkov + cost + OPA on those factories covers most of the estate.>
 :::
 
-\\\`\\\`\\\`chart monthly_growth IaCM Growth — Last 12 Months
-{ /* monthly_growth data — see Step 2.6 */ }
+\\\`\\\`\\\`chart bar Top 10 Projects by Workspace Count
+{
+  "title": "Top 10 Projects by Workspace Count",
+  "bars": [ /* top 10 projects from scan, descending */ ]
+}
 \\\`\\\`\\\`
 
 ::: info
-**Sustained adoption.** <One sentence on workspace + pipeline growth percentages.>
+**Project-level concentration.** <Top 3 projects % of total workspaces; template-friendly narrative.>
+:::
+
+\\\`\\\`\\\`chart monthly_growth IaCM Growth — Last 12 Months
+{
+  "subtitle": "Cumulative workspaces and pipelines · account-wide",
+  "growth": { "workspaces": "+<n> / 12 mo", "pipelines": "+<n> / 12 mo" },
+  /* points from harness_iacm_growth */
+}
+\\\`\\\`\\\`
+
+::: info
+**Hockey-stick adoption.** <Inflection month, workspaces/pipelines added in peak month.>
+:::
+
+### 1.1 Workspace Status Distribution
+
+<1–2 sentences on active vs inactive vs failed/apply_needed counts from \`harness_iacm_workspace_inventory\`. Include a **status table** (status | workspaces | %).>
+
+\`\`\`chart bar Workspace status distribution
+{
+  "title": "Workspace status",
+  "bars": [
+    { "label": "Active", "value": <active_count>, "tone": "success" },
+    { "label": "Inactive", "value": <inactive_count>, "tone": "secondary" },
+    { "label": "Apply needed", "value": <apply_needed_count>, "tone": "warning" },
+    { "label": "Failed", "value": <failed_count>, "tone": "danger" }
+  ]
+}
+\`\`\`
+
+### 1.2 Provisioner Type & Version Sprawl
+
+Two bar charts: **Provisioner Type** (Terraform / OpenTofu / Terragrunt counts) then **Version Lines** (major.minor, include "Other TF pins"). Full **exact pin table** below. Callouts: meaningful sprawl, end-of-life exposure, OpenTofu pilot note.
+
+\`\`\`chart bar Top provisioner version lines
+{
+  "title": "Provisioner version lines (major.minor)",
+  "bars": [ /* top 6–8 from versionLabels[] */ ]
+}
+\`\`\`
+
+::: critical
+**Version sprawl.** <Finding from versionSprawl — many pins/lines lowers Provisioner Standardisation score.>
 :::
 
 ### Geographic Coverage
@@ -410,24 +469,67 @@ bvr_template: "canonical"
 
 | Dimension | Score | Max | Status |
 |-----------|-------|-----|--------|
-| <fill from maturity scan> |
+| <fill from maturity scan — 9 core dimensions> |
+| **Total** | **<score>** | **100** | **<tier>** |
+
+*Templates footnote (when feature_scan % ≠ maturity YAML score):* explain feature_scan finds higher template % than \`templateRef\` detection — treat templates as strength.
+
+**Extended standardisation (always include when workspace_inventory ran):**
+
+| Provisioner Standardisation | <score> | 10 | sprawl finding |
+| Module Registry Standardisation | <score> | 10 | registry finding |
+| **Extended total** | **<sum>** | **120** | **<tier> (<pct>%)** |
 
 ---
 
 # 3. Feature Adoption
 
+<bimodal intro — strong where invested, gaps in plan-time guardrails.>
+
 \\\`\\\`\\\`chart feature_gauges Feature Adoption Scorecard
-{ /* feature_gauges data — see Step 2.3 */ }
+{
+  "gauges": [
+    { "label": ["IaCM","Templates"], "pct": <pct> },
+    { "label": ["Checkov","Scans"], "pct": <pct> },
+    { "label": ["Cost","Estimation"], "pct": <pct> },
+    { "label": ["Private","Registry"], "pct": <private_pct> }
+  ]
+}
 \\\`\\\`\\\`
 
-<2 sentences on top-line adoption.>
+| Feature | Adoption | Note |
+|---------|----------|------|
+| IaCM Templates | <pct> (<adopted>/<total> pipelines) | <pattern names> |
+| Checkov security scans | <pct> | <coverage note> |
+| Cost estimation | <pct> | <workspace note> |
+| Private module registry | <pct> | <Harness vs git-only note> |
 
 ::: critical
-**<largest gap one-liner>** <One paragraph explaining the impact of the largest disabled feature.>
+**Asymmetric risk profile.** <Checkov gap + maturity pts — Twilio-style when OPA strong but Checkov zero.>
 :::
 
 ::: warning
-**<second gap one-liner>** <Short paragraph on the second-largest gap.>
+**Cost blindness at scale.** <Cost estimation gap + CCM connection opportunity.>
+:::
+
+### 3.1 Module registry standardisation
+
+<Explain Harness private vs other private vs no registry. No registry = git-only / unset = standardisation opportunity.>
+
+\`\`\`chart bar Module registry usage
+{
+  "title": "Module registry sources",
+  "bars": [
+    { "label": "Harness private", "value": <harness_private>, "tone": "success" },
+    { "label": "Other private", "value": <other_private>, "tone": "primary" },
+    { "label": "Public only", "value": <public_only>, "tone": "secondary" },
+    { "label": "No registry", "value": <none>, "tone": "danger" }
+  ]
+}
+\`\`\`
+
+::: action
+**Standardise module consumption.** <Recommendation from moduleRegistryMaturity — expand Harness Module Registry for workspaces without registry metadata.>
 :::
 
 ---
@@ -440,12 +542,22 @@ bvr_template: "canonical"
 
 <2 sentences naming the strongest policy framework.>
 
+When **active policy sets > 0**, add a **Policy set** table:
+
+| Policy set | Purpose |
+|------------|---------|
+| <name> | <one-line purpose> |
+
 ::: success
-**<positive framing>** <Sentence praising the strongest pillar.>
+**Best-in-class governance.** <When OPA coverage high — pipeline-attached sets, named controls.>
 :::
 
 ::: action
-**Quick win: activate <N> disabled policy sets.** <List them. End with "no authoring, no testing, no engineering" if true.>
+**Quick win: activate <N> disabled policy sets.** <Or: bind existing policies — no new Rego. Mention \`onRun\` shift-left (+4 pts) when sets go live.>
+:::
+
+::: action
+**Refinement opportunity.** <When pipeline OPA strong: add 1–2 workspace-scoped sets — tags, S3 ACLs, version pins. Low effort +5 pts.>
 :::
 
 ---
@@ -458,15 +570,13 @@ bvr_template: "canonical"
 
 <1 sentence highlighting the P1 quadrant.>
 
-::: action
-**P1 — <action 1 title>.** <2 sentences on what + why.>
-:::
+Open with: "Most Run-tier points are **configuration toggles**, not greenfield engineering."
 
 ::: action
-**P1 — <action 2 title>.** <Same.>
+**P1 — <action>.** <What + why. End with **Effort: Low/Medium · +N pts** when known.>
 :::
 
-<Continue with P2 / P3 actions as ::: action callouts>
+<4–6 ::: action callouts covering P1/P2 — include onRun OPA, factory-template Checkov, cost on factory projects, module registry when registry gap large.>
 
 ---
 
@@ -480,7 +590,13 @@ bvr_template: "canonical"
 
 # Appendix — Organisation Summary
 
-<Table of every org with workspaces and pipelines counts. End with totals row.>
+**Org table** with columns: \`#\` · Org identifier · Projects · Workspaces · Pipelines · account total row.
+
+**### Active project summary** — top 10–12 projects by workspace count (\`#\` · Project · Org · Workspaces · Pipelines).
+
+**### Methodology** — \`harness_iacm_scan\` paginated-exhaustive; \`harness_iacm_workspace_inventory\` fetch_details; list \`_meta.projectsHittingWorkspaceCap\`; reconcile dashboard ±5%.
+
+Footer: \`Harness IaCM · Business Value Review · <date> · <customer> · <account-url> · Confidential · Data collected live from Harness Platform APIs\`
 
 ---
 

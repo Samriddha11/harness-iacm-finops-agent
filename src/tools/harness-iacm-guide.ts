@@ -14,6 +14,7 @@ This MCP server integrates with **Harness IaCM (Infrastructure as Code Managemen
 | Tool | Purpose |
 |------|---------|
 | \`harness_iacm_scan\` | **Auto-scan all orgs/projects** — counts workspaces + pipelines account-wide with no args |
+| \`harness_iacm_workspace_inventory\` | **BVR workspace inventory** — provisioner/version sprawl, status distribution, module registry classification |
 | \`harness_iacm_feature_scan\` | **BVR feature adoption scan** — detects Checkov, cost estimation, templates, private registry per pipeline/workspace |
 | \`harness_iacm_opa_scan\` | **BVR OPA governance scan** — lists all OPA policies + policy sets, shows which IaCM pipelines have enforcement and which don't |
 | \`harness_iacm_list\` | List any IaCM resource with filtering and pagination |
