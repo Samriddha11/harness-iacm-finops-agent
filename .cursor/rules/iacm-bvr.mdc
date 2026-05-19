@@ -72,6 +72,22 @@ The IaCM workspace listing endpoint silently caps each page at 30 items server-s
 3. **Inspect the `_meta` block** on every scan output. `_meta.workspaceCountMethod` must be `paginated-exhaustive`. If it is anything else, the count is suspect.
 4. **Treat any project reporting a suspiciously round count (30, 50, 100, etc.) as a smoke alarm** — the server cap was hit. The bundled tools paginate past this; any agent-built one-off must too.
 
+## Provisioner version detection — the only acceptable method
+
+The IaCM workspace **list** endpoint (`GET /iacm/api/orgs/{o}/projects/{p}/workspaces`) returns `provisioner_version: "latest"` as a summary placeholder for **every** row regardless of the workspace's real pin. The truth lives on the **GET** endpoint (`GET /iacm/api/orgs/{o}/projects/{p}/workspaces/{id}`), which returns the actual semver pin (e.g. `"1.5.7"`, `"0.13.7"`). Verified against the Autodesk tenant on 2026-05-19 — list said `latest`, GET said `1.5.7` and `1.0.11` on two adjacent workspaces.
+
+Historically this bug caused §1.2 of a real customer BVR to claim **"100% of workspaces are unpinned to `latest`"** when the truth was **100% pinned across 9 version lines with 52% on end-of-life Terraform 0.13.x / 0.15.x** — the exact opposite finding, and one that flipped the entire P2 recommendation set.
+
+1. **Always use `harness_iacm_workspace_inventory` with `fetch_details: true`** for §1.2 (Provisioner Type & Version Sprawl) and the Provisioner Standardisation maturity dimension. It iterates the GET endpoint internally with concurrency 12.
+2. **Never derive provisioner versions from `harness_iacm_list resource_type=workspace`** — that endpoint's `provisioner_version` field is unreliable. The `provisioner` (type) and `status` fields on the list endpoint are fine; only `provisioner_version` is the placeholder bug.
+3. **Smoke alarm: "100% latest."** If aggregated provisioner data shows every workspace on `latest` with zero pins, **STOP** — that is the list-endpoint bug, not a real finding. Real estates universally have at least 3-5 distinct pins. Re-derive via `workspace_inventory fetch_details: true`.
+4. **If `harness_iacm_workspace_inventory` is not exposed** on the running MCP build (older builds don't ship it), the canonical fallback is `scripts/workspace-sprawl.mjs`. Run:
+   ```sh
+   node scripts/workspace-sprawl.mjs reports/<bvr-id>/workspace-inventory.json
+   ```
+   The script reads auth from `~/.cursor/mcp.json` (the `harness-iacm` entry), iterates every IaCM project, paginates each project's workspaces exhaustively, GETs every workspace by id at concurrency 12, and runs the same `classifyModuleRegistry` / `scoreVersionSprawlMaturity` aggregation that `harness_iacm_workspace_inventory` does internally. Expected runtime ~90s for ~1000 workspaces. Use the output JSON directly for §1.1, §1.2, §3.1, and the Provisioner Standardisation / Module Registry maturity dimensions. **Do not** publish list-derived provisioner versions and **do not** label them "sampled" — they are not sampled, they are wrong.
+5. **The same `harness_iacm_workspace_inventory fetch_details: true` call also supplies the truthful Module Registry classification** for §3.1. The naive heuristic (just `repository` field on the list endpoint) is similarly unreliable.
+
 ## Ground-truth validation — mandatory before publishing
 
 Before writing any markdown, generating any chart, or rendering any PDF that will be sent to a customer:
@@ -79,7 +95,8 @@ Before writing any markdown, generating any chart, or rendering any PDF that wil
 1. **Sum-and-reconcile.** Sum workspaces across orgs from the scan output → record as `A`. Compare to the IaCM dashboard total → record as `B`. If `|A - B| / B > 0.05`, **STOP** and reconcile before continuing. Common causes: timing drift during a migration ramp, or a dashboard filter the scan doesn't apply.
 2. **Inspect `_meta.projectsHittingWorkspaceCap`.** This is informational once the tools paginate (we walked past the cap), but it tells you which projects have ≥30 workspaces — useful colour for the report.
 3. **Inspect `_meta.unreachableProjectsForWorkspaces`.** These projects appear with workspace count `0` in the output, but that is not "no workspaces" — it is "we couldn't read them." Call this out explicitly in any report that lists them.
-4. **Pipelines are safe.** Pipeline counts come from the NG API's `data.totalElements` field which does not have the same bug — no special handling required.
+4. **Provisioner-version smoke test.** Before writing §1.2, glance at the version-line aggregate. If you see only one row with `provisioner_version: latest` (or one row with 100%), the list-endpoint bug bit you. See "Provisioner version detection" above and re-derive via GET.
+5. **Pipelines are safe.** Pipeline counts come from the NG API's `data.totalElements` field which does not have the same bug — no special handling required.
 
 ## Methodology disclosure
 
@@ -108,7 +125,7 @@ The `reports/` folder is gitignored by default (`reports/*` excluded, `reports/e
 2. `iacm_bvr` MCP **prompt** — pulls in the canonical BVR recipe with the exact section structure, chart shapes, callout vocabulary, and frontmatter contract for this customer engagement
 3. `harness_iacm_list resource_type=harness_org` — confirm auth and visible scope
 4. `harness_iacm_scan` — workspace + pipeline counts (verify `_meta.workspaceCountMethod == "paginated-exhaustive"`)
-5. `harness_iacm_workspace_inventory` — provisioner/version sprawl, workspace status distribution, module registry (Harness private / other private / none); use `fetch_details: true` for accurate version pins
+5. `harness_iacm_workspace_inventory` with **`fetch_details: true`** — **mandatory** source for provisioner/version sprawl, workspace status distribution, and module registry classification. Do **not** substitute `harness_iacm_list resource_type=workspace` for the `provisioner_version` field — that endpoint returns `"latest"` for every workspace as a placeholder regardless of the real pin (see "Provisioner version detection — the only acceptable method" above). If `workspace_inventory` is not exposed on the running MCP build, fall back to exhaustive `harness_iacm_get` per workspace and aggregate locally — **never** publish list-derived provisioner versions.
 6. `harness_iacm_feature_scan` — Checkov / cost estimation / templates / private registry
 7. `harness_iacm_opa_scan` — policy sets and coverage
 8. `harness_iacm_growth months=12` — time-series
