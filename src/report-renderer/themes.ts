@@ -1018,11 +1018,21 @@ figure svg {
   margin: 0 auto;
   border-radius: 8px;
 }
-/* Maturity radar: cap width so axis labels stay inside the report column */
+/* Maturity radar: responsive, no clipping on axis labels */
+figure.figure-maturity-radar,
 figure:has(svg.chart-maturity-radar) {
-  max-width: min(100%, 640px);
+  max-width: min(100%, 680px);
   margin-left: auto;
   margin-right: auto;
+  overflow: visible !important;
+  padding: clamp(12px, 2vw, 24px) clamp(16px, 3vw, 32px);
+}
+figure.figure-maturity-radar svg,
+figure:has(svg.chart-maturity-radar) svg {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  overflow: visible;
 }
 figure svg text { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif; }
 

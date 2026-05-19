@@ -79,7 +79,10 @@ function inlineSvgImages(html: string, markdownDir: string): string {
           `$1 role="img" aria-label="${altText}" style="width:100%;height:auto;display:block"`,
         );
 
-        return `<figure>${svgContent}</figure>`;
+        const figClass = /class="chart-maturity-radar"/i.test(svgContent)
+          ? "figure-chart figure-maturity-radar"
+          : "figure-chart";
+        return `<figure class="${figClass}">${svgContent}</figure>`;
       } catch {
         return fullTag;
       }
